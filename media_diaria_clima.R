@@ -68,4 +68,8 @@ apaCP = monta_apa(temp1999_2019_per_day, RH1999_2019_per_day,
 apaCG = monta_apa(temp1999_2019_per_day, RH1999_2019_per_day, 
                   prec1999_2019_per_day, wind1999_2019_per_day, c(6,12,7,13,3,8,14,1,4,9,15,2,5,10))
 
-write.csv(apaRP,"clima_cavernas.csv", row.names = FALSE)
+write.csv(apaRP,"clima_pandeiros.csv", row.names = FALSE)
+
+write.csv(apaCP,"clima_cavernas.csv", row.names = FALSE)
+
+write.csv(apaCG,"clima_cochagibao.csv", row.names = FALSE)
