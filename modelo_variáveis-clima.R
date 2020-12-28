@@ -2,34 +2,34 @@
 
 library(tibble)
 
-dados_cavernas= data.frame(read.csv("cavernas_model-clima_completa.csv", sep = ","))
+dados_cavernas= data.frame(read.csv("cavernas_model-clima.csv", sep = ","))
 
 dados_cavernas = as_tibble(dados_cavernas)
 
-names(dados_cavernas)
-
-dim(dados_cavernas)
-
-dados_cavernas$precipitation[dados_cavernas$precipitation<0]=0
-
 dados_cavernas$HAS_FIRE=as.factor(dados_cavernas$HAS_FIRE)
-str(dados_cavernas)
 
 dados_cavernas$Focuses_qnt=as.numeric(dados_cavernas$Focuses_qnt)
 
 dados_cavernas$HAS_FIRE=relevel(dados_cavernas$HAS_FIRE, "false")
+
+#categorizando as variáveis numérias para torná-las fatores
+
+library(data.table)
+library(Publish)
+
+dados_cavernas_categorizado=dados_cavernas[, temperature:=cut(temperature,9,include.lowest = TRUE)]
+dados_cavernas_categorizado=dados_cavernas[,table(temperature)]
+
+#criando amostras de treino e teste
 
 index_treino_cave=sample(1:nrow(dados_cavernas), round(0.8*nrow(dados_cavernas)))
 
 dados_treino_cave=dados_cavernas[index_treino_cave,]
 dados_teste_cave=dados_cavernas[-index_treino_cave,]
 
-nrow(dados_cavernas)
-nrow(dados_treino_cave)
-nrow(dados_teste_cave)
-
 t=table(dados_treino_cave$HAS_FIRE,dados_treino_cave$temperature)
-View(t)
+
+
 barplot(t,xlab = "Mes", ylab = "Quantidade de focos", legend = rownames(t))
 
 Queimou=dados_treino_cave[dados_treino_cave$HAS_FIRE=="true",]
@@ -46,3 +46,6 @@ mean(Não_queimou$temperature)
 mean(Não_queimou$Relative.Humidity)
 mean(Não_queimou$precipitation)
 mean(Não_queimou$Wind.speed)
+
+
+
