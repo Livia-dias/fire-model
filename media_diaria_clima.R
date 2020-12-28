@@ -11,9 +11,8 @@ RH1999_2019= data.frame(read.csv("RH_1999_2019.csv", sep = ";"))
 prec1999_2019= data.frame(read.csv("precip_1999_2019.csv", sep = ";", dec = ","))
 wind1999_2019= data.frame(read.csv("Wind_1999_2019.csv", sep = ";"))
 
+prec1999_2019[prec1999_2019<0]=0
 
-print(prec1999_2019[38689,1])                     
-which(!grepl('^[0-9]',prec1999_2019[[1]]))
 
 #media de 1 dia, 24 linhas=1 dia
 mean_days = function(dataframe_1day){
@@ -31,9 +30,24 @@ mean_days = function(dataframe_1day){
   return(means)
 }
 
+sum_days = function(dataframe_1day){
+  hours_per_day <- 24
+  n_rows = nrow(dataframe_1day)
+  day = rep(1:ceiling(n_rows/hours_per_day),each=hours_per_day)[1:n_rows]
+  days_list = split(dataframe_1day,day)
+  
+  
+  sum = data.frame()
+  for(day in days_list){
+    sum = rbind(sum, colSums(day))
+  }
+  names(sum) = names(dataframe_1day)
+  return(sum)
+}
+
 temp1999_2019_per_day=mean_days(temp1999_2019)
 RH1999_2019_per_day=mean_days(RH1999_2019)
-prec1999_2019_per_day=mean_days(prec1999_2019)
+prec1999_2019_per_day=sum_days(prec1999_2019)
 wind1999_2019_per_day=mean_days(wind1999_2019)
 
 #separando por apas
@@ -60,7 +74,6 @@ monta_apa = function(dataframe_temp, dataframe_rh, dataframe_prec, dataframe_win
 
 apaRP = monta_apa(temp1999_2019_per_day, RH1999_2019_per_day, 
           prec1999_2019_per_day, wind1999_2019_per_day, c(13,19,14,20,9,15,21,23,16,22,24))
-View(apaRP)
 
 apaCP = monta_apa(temp1999_2019_per_day, RH1999_2019_per_day, 
                   prec1999_2019_per_day, wind1999_2019_per_day, c(9,15,10,16,11,17,18,1))
