@@ -1,51 +1,86 @@
 #teste regressão logística com variáveis climáticas e focos de incêndios
 
-library(tibble)
-
 dados_cavernas= data.frame(read.csv("cavernas_model-clima.csv", sep = ","))
 
-dados_cavernas = as_tibble(dados_cavernas)
 
-dados_cavernas$HAS_FIRE=as.factor(dados_cavernas$HAS_FIRE)
+#gera intervalo de valores a partir de min e max de uma coluna, incrementando pelo valor de "interval"
+#Exemplo: get_interval(col, 10) irá incrementar o minimo de 10 em 10 até atingir o máximo, e irá devolver o intervalo gerado
+get_interval = function(column, interval){
+  
+  minimum = floor(min(column))
+  maximum = ceiling(max(column))
+  
+  final_list = c()
+  current = minimum
+  while(current < maximum){
+    final_list = c(final_list, current)
+    current = current + interval
+  }
+  final_list = c(final_list, current)
+  return(final_list)
+}
 
-dados_cavernas$Focuses_qnt=as.numeric(dados_cavernas$Focuses_qnt)
+#gera intervalo de valores a partir de min e max de uma coluna, com a quantidade de valores definidos em "quantity".
+#Exemplo: get_interval_from_quantity(col, 10) irá gerar 10 intervalos entre o min e o máx da coluna
+get_interval_from_quantity = function(column, quantity) {
+  minimum = floor(min(column))
+  maximum = ceiling(max(column))
+  
+  final_list = c()
+  increment = (maximum - minimum)/quantity
+  current = minimum
+  while(current < maximum){
+    final_list = c(final_list, current)
+    current = current + increment
+  }
+  final_list = c(final_list, current)
+  return(final_list)
+  
+}
 
-dados_cavernas$HAS_FIRE=relevel(dados_cavernas$HAS_FIRE, "false")
+create_data = function(dataframe) {
+  library(tibble)
+  library(data.table)
+  library(Publish)
+  
+  data_tibble = as_tibble(dataframe)
+  
+  #arrumando valores e fatores
+  data_tibble$precipitation[data_tibble$precipitation<0]=0
+  data_tibble$HAS_FIRE=as.factor(data_tibble$HAS_FIRE)
+  data_tibble$Focuses_qnt=as.numeric(data_tibble$Focuses_qnt)
+  data_tibble$HAS_FIRE=relevel(data_tibble$HAS_FIRE, "false")
+  
+  #criando index de treino e dados de treino e teste
+  index_treino=sample(1:nrow(data_tibble), round(0.8*nrow(data_tibble)))
+  dados_treino=data_tibble[index_treino,]
+  dados_teste=data_tibble[-index_treino,]
+  
 
-#categorizando as variáveis numérias para torná-las fatores
+  Queimou=dados_treino[dados_treino$HAS_FIRE=="true",]
+  Não_queimou=dados_treino[dados_treino$HAS_FIRE=="false",]
 
-library(data.table)
-library(Publish)
+  #gerando categorias de cada variável:
+  #temperatura: incrementando de 2 em 2 graus de min até o max da coluna
+  #rh: gerando 10 intervalos iguais entre o min e o max
+  #velocidade do vento: incrementando de 2 em 2 m/s de min até o max da coluna
+  #precipitação: incrementando de 2 em 2 milimetros de min até o max da coluna
+  setDT(data_tibble)
+  temp_cat = cut(data_tibble$temperature,
+                 get_interval(data_tibble$temperature, 2),
+                 include.lowest=TRUE)
+  rh_cat = cut(data_tibble$Relative.Humidity,
+               get_interval(data_tibble$Relative.Humidity, 10),
+               include.lowest=TRUE)
+  ws_cat = cut(data_tibble$Wind.speed,
+               get_interval(data_tibble$Wind.speed, 2),
+               include.lowest=TRUE)
+  prec_cat = cut(data_tibble$precipitation,
+                 get_interval(data_tibble$precipitation, 2),
+                 include.lowest=TRUE)
+  dados_out = data.frame(data_tibble, temp_cat,rh_cat,ws_cat,prec_cat)
+  
+  return(dados_out)
+}
 
-dados_cavernas_categorizado=dados_cavernas[, temperature:=cut(temperature,9,include.lowest = TRUE)]
-dados_cavernas_categorizado=dados_cavernas[,table(temperature)]
-
-#criando amostras de treino e teste
-
-index_treino_cave=sample(1:nrow(dados_cavernas), round(0.8*nrow(dados_cavernas)))
-
-dados_treino_cave=dados_cavernas[index_treino_cave,]
-dados_teste_cave=dados_cavernas[-index_treino_cave,]
-
-t=table(dados_treino_cave$HAS_FIRE,dados_treino_cave$temperature)
-
-
-barplot(t,xlab = "Mes", ylab = "Quantidade de focos", legend = rownames(t))
-
-Queimou=dados_treino_cave[dados_treino_cave$HAS_FIRE=="true",]
-Não_queimou=dados_treino_cave[dados_treino_cave$HAS_FIRE=="false",]
-
-View(Queimou)
-
-mean(Queimou$temperature)
-mean(Queimou$Relative.Humidity)
-mean(Queimou$precipitation)
-mean(Queimou$Wind.speed)
-
-mean(Não_queimou$temperature)
-mean(Não_queimou$Relative.Humidity)
-mean(Não_queimou$precipitation)
-mean(Não_queimou$Wind.speed)
-
-
-
+out = create_data(dados_cavernas)
