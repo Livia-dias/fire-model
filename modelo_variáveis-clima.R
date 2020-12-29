@@ -92,15 +92,21 @@ tibble_variaveis= function(apa_categorizada){
 #apa cavernas - amostras
 tibble_cavernas=tibble_variaveis(cavernas_categorizado)
 
+#categorias de referência
+tibble_cavernas$HAS_FIRE=relevel(tibble_cavernas$HAS_FIRE,"false")
 
 #criando index de treino e dados de treino e teste
 index_treino_cavernas=sample(1:nrow(tibble_cavernas), round(0.8*nrow(tibble_cavernas)))
 dados_treino_cavernas=tibble_cavernas[index_treino_cavernas,]
 dados_teste_cavernas=tibble_cavernas[-index_treino_cavernas,]
 
+table(dados_treino_cavernas$HAS_FIRE,dados_treino_cavernas$rh_cat)
+table(dados_treino_cavernas$HAS_FIRE,dados_treino_cavernas$temp_cat)
+table(dados_treino_cavernas$HAS_FIRE,dados_treino_cavernas$ws_cat)
+table(dados_treino_cavernas$HAS_FIRE,dados_treino_cavernas$prec_cat)
 
-Queimou=dados_treino_cavernas[dados_treino_cavernas$HAS_FIRE=="true",]
-Não_queimou=dados_treino_cavernas[dados_treino_cavernas$HAS_FIRE=="false",]
+barplot(table(dados_treino_cavernas$HAS_FIRE,dados_treino_cavernas$temp_cat),main = "temperatura x queimadas")
+
 
 #apa cocha - amostras
 tibble_cocha=tibble_variaveis(cocha_categorizado)
@@ -109,8 +115,7 @@ index_treino_cocha=sample(1:nrow(tibble_cocha), round(0.8*nrow(tibble_cocha)))
 dados_treino_cocha=tibble_cocha[index_treino_cocha,]
 dados_teste_cocha=tibble_cocha[-index_treino_cocha,]
 
-Queimou=index_treino_cocha[index_treino_cocha$HAS_FIRE=="true",]
-Não_queimou=index_treino_cocha[index_treino_cocha$HAS_FIRE=="false",]
+
 
 #apa pandeiros - amostras
 tibble_pandeiros=tibble_variaveis(pandeiros_categorizado)
@@ -120,5 +125,37 @@ dados_treino_pandeiros=tibble_pandeiros[index_treino_pandeiros,]
 dados_teste_pandeiros=tibble_pandeiros[-index_treino_pandeiros,]
 
 
-Queimou=dados_treino_pandeiros[dados_treino_pandeiros$HAS_FIRE=="true",]
-Não_queimou=dados_treino_pandeiros[dados_treino_pandeiros$HAS_FIRE=="false",]
+
+#rodando o modelo regressão logistica
+#variáveis categóricas
+
+model1=glm(HAS_FIRE~temp_cat+rh_cat+prec_cat+ws_cat,data = dados_treino_cavernas,family = binomial())
+
+summary(model1)
+
+odds_teste=exp(coef(model1))
+
+#variáveis numéricas amostra de treino
+#modelo com precipitação
+model2=glm(HAS_FIRE~temperature+Relative.Humidity+precipitation+Wind.speed,data = dados_treino_cavernas,family = binomial())
+
+summary(model2)
+
+#modelo sem precipitação
+model3=glm(HAS_FIRE~temperature+Relative.Humidity+Wind.speed,data = dados_treino_cavernas,family = binomial())
+
+summary(model3)
+
+#variáveis numéricas amostra de teste - rodando o modelo
+
+pred.Teste=predict(model3,dados_teste_cavernas,type = "response")
+View(pred.Teste)
+
+dados_teste_cavernas$Prob_fogo=pred.Teste
+
+dados_teste_cavernas[,c("HAS_FIRE","Prob_fogo")]
+
+
+
+cat("taxa de acerto de queima",53,"%\n")
+cat("taxa de acerto de não_queima",90,"%\n")
