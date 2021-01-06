@@ -10,24 +10,42 @@ source("media_diaria_clima.R")
 dados_cavernas= data.frame(read.csv("cavernas_model-clima.csv", sep = ","))
 metadata=data.frame(read.csv("PONTOS.csv", sep=";"))
 
-nomes_dos_pontos=names(metadata[2:25]) #todos os nomes menos a coluna id
+gerar_fwi = function(nomes_dos_pontos, temp_per_day, rh_per_day, wind_per_day, prec_per_day, metadata, dados_diarios) {
+  lista_fwi=list()
+  for (nome_do_ponto in nomes_dos_pontos) {
+    temp=temp_per_day[nome_do_ponto]
+    rh=rh_per_day[nome_do_ponto]
+    ws=wind_per_day[nome_do_ponto]
+    prec=prec_per_day[nome_do_ponto]
+    
+    day=dados_diarios$day
+    mon=dados_diarios$Month
+    yr=dados_diarios$Year
+    
+    ponto=data.frame(temp,rh,ws,prec,day,mon,yr,"lat"=metadata[2,nome_do_ponto],"long"=metadata[1,nome_do_ponto])
+    names(ponto)=c("temp","rh","ws","prec","day","mon","yr","lat","long")
+    fwi=fwi(ponto,init=data.frame(ffmc=85,dmc=6,dc=15,lat=metadata[2,nome_do_ponto])) 
+    lista_fwi=list.append(lista_fwi,fwi)
+  }
+  return(lista_fwi)
+}
 
-lista_fwi=list()
-for (nome_do_ponto in nomes_dos_pontos) {
-  temp=temp1999_2019_per_day[nome_do_ponto]
-  rh=RH1999_2019_per_day[nome_do_ponto]
-  ws=wind1999_2019_per_day[nome_do_ponto]
-  prec=prec1999_2019_per_day[nome_do_ponto]
+
+lista_fwi = gerar_fwi(names(metadata[2:25]), temp1999_2019_per_day, RH1999_2019_per_day, wind1999_2019_per_day, prec1999_2019_per_day, metadata, dados_cavernas)
+
+gerar_var = function(coluna, lista_fwi, day, mon, yr){
+  lista_var = list()
+  for (fwi in lista_fwi) {
+    lista_var=list.append(lista_var,fwi[,coluna]) 
+  }
+  lista_var=list.append(lista_var,day)
+  lista_var=list.append(lista_var,mon)
+  lista_var=list.append(lista_var,yr)
   
-  day=dados_cavernas$day
-  mon=dados_cavernas$Month
-  yr=dados_cavernas$Year
-  
-  ponto=data.frame(temp,rh,ws,prec,day,mon,yr,"lat"=metadata[2,nome_do_ponto],"long"=metadata[1,nome_do_ponto])
-  names(ponto)=c("temp","rh","ws","prec","day","mon","yr","lat","long")
-  fwi=fwi(ponto,init=data.frame(ffmc=85,dmc=6,dc=15,lat=metadata[2,nome_do_ponto])) 
-  lista_fwi=list.append(lista_fwi,fwi)
- }
+  variavel=data.frame(lista_var)
+  names(variavel)=c("X1","X2","X3","X4","X5","X6","X7","X8","X9","X10","X11","X12","X13","X14","X15","X16","X17","X18","X19","X20","X21","X22","X23","X24","day","mon","yr")
+}
+gerar_var("FFMC", lista_fwi, day, mon, yr)
 
 #-------------------------------------------------gerando FFMC---------------------------------------------------
 lista_ffmc=list()

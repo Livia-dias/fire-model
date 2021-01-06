@@ -39,18 +39,18 @@ sum_days = function(dataframe_1day){
   sum = data.frame()
   for(day in days_list){
     sum = rbind(sum, colSums(day[,1:24]))
-    sum = cbind(sum, day[25:26])
   }
   
-  names(sum) = names(dataframe_1day)
   return(sum)
 }
-prec1999_2019_per_day=sum_days(prec1999_2019)
 
 temp1999_2019_per_day=mean_days(temp1999_2019)
 RH1999_2019_per_day=mean_days(RH1999_2019)
-prec1999_2019_per_day=sum_days(prec1999_2019)
 wind1999_2019_per_day=mean_days(wind1999_2019)
+prec1999_2019_per_day=sum_days(prec1999_2019)
+prec1999_2019_per_day=data.frame(prec1999_2019_per_day, wind1999_2019_per_day[,25:26])
+names(prec1999_2019_per_day)=names(wind1999_2019_per_day)
+prec1999_2019_per_day[prec1999_2019_per_day<0]=0
 
 write.csv(temp1999_2019_per_day, "temp1999_2019_per_day.csv", row.names = FALSE)
 write.csv(RH1999_2019_per_day, "RH1999_2019_per_day.csv", row.names = FALSE)
