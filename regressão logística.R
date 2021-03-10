@@ -71,12 +71,22 @@ odds_teste=exp(coef(model1))
 
 #variáveis numéricas, APENAS CLIMAS - amostra de treino
 #modelo com precipitação
-model2=glm(HAS_FIRE~temperature+Relative.Humidity+precipitation+Wind.speed,data = dados_treino_cavernas,family = binomial())
+model2=glm(HAS_FIRE~Temperature+Relative.Humidity+Precipitation+Wind.speed,data = dados_treino_cavernas,family = binomial())
 
 summary(model2)
+sumario_model2=summary.glm(model2)$coefficients
+write.csv(sumario_model2, "modelo_sumario_clima2.csv")
+
+pred.Teste=predict(model2,dados_teste_cavernas,type = "response")
+
+dados_teste_cavernas$Prob_fogo=pred.Teste
+
+View(dados_teste_cavernas[,c("HAS_FIRE","Prob_fogo")])
+
+table(dados_teste_cavernas$HAS_FIRE,dados_teste_cavernas$Prob_fogo>0.5)
 
 #modelo sem precipitação
-model4=glm(HAS_FIRE~temperature+Relative.Humidity+Wind.speed,data = dados_treino_cavernas,family = binomial())
+model4=glm(HAS_FIRE~Temperature+Relative.Humidity+Wind.speed,data = dados_treino_cavernas,family = binomial())
 
 summary(model4)
 
@@ -89,10 +99,12 @@ summary(model3)
 
 #variáveis numéricas, clima = fwi, SEM FFMC - amostra de treino
 
-model_cavernas=glm(HAS_FIRE~Temperature+Relative.Humidity+Precipitation+Wind.speed+Duff.Moisture.Code+
+model_cavernas=glm(HAS_FIRE~Temperature+Relative.Humidity+Precipitation+Duff.Moisture.Code+
              Drought.Code,data= dados_treino_cavernas,family=binomial())
 
 summary(model_cavernas)
+sumario_model1=summary.glm(model_cavernas)$coefficients
+write.csv(sumario_model1, "modelo_sumario_clima1.csv")
 
 #variáveis numéricas amostra de teste-cavernas - rodando o modelo
 
@@ -108,7 +120,12 @@ table(dados_teste_cavernas$HAS_FIRE,dados_teste_cavernas$Prob_fogo>0.5)
 model_cocha=glm(HAS_FIRE~Temperature+Relative.Humidity+Precipitation+Wind.speed+
                   Drought.Code,data = dados_treino_cocha,family = binomial())
 
+
 summary(model_cocha)
+
+summary(model_cocha)
+sumario_model5=summary.glm(model_cocha)$coefficients
+write.csv(sumario_model5, "modelo_sumario_clima5.csv")
 
 pred.Cocha=predict(model_cocha,dados_teste_cocha,type = "response")
 View(pred.Cocha)
@@ -120,10 +137,11 @@ View(dados_teste_cocha[,c("HAS_FIRE","Prob_fogo")])
 table(dados_teste_cocha$HAS_FIRE,dados_teste_cocha$Prob_fogo>0.5)
 
 #rodando modelo para apa pandeiros
-model_pandeiros=glm(HAS_FIRE~Temperature+Relative.Humidity+Precipitation+
-                      Drought.Code,data = dados_treino_pandeiros,family = binomial())
+model_pandeiros=glm(HAS_FIRE~Temperature+Relative.Humidity+Precipitation+Drought.Code,data = dados_treino_pandeiros,family = binomial())
 
 summary(model_pandeiros)
+sumario_model7=summary.glm(model_pandeiros)$coefficients
+write.csv(sumario_model7, "modelo_sumario_clima3.csv")
 
 pred.Pandeiros=predict(model_pandeiros,dados_teste_pandeiros,type = "response")
 View(pred.Pandeiros)
