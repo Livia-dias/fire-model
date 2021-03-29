@@ -10,6 +10,8 @@ has_fire_cocha=data.frame(read.csv("cocha_model-clima.csv", sep = ","))
 has_fire_pandeiros=data.frame(read.csv("pandeiros_model-clima.csv", sep = ","))
 
 cavernas_clima_fwi=data.frame(cavernas_clima_fwi,"HAS_FIRE"=has_fire_cavernas$HAS_FIRE)
+cavernas_clima_fwi$HAS_FIRE=has_fire_cavernas$HAS_FIRE
+write.csv(cavernas_clima_fwi,"cavernas_lasso_fwi.csv",sep =";",dec = ",")
 cocha_clima_fwi=data.frame(cocha_clima_fwi,"HAS_FIRE"=has_fire_cocha$HAS_FIRE)
 pandeiros_clima_fwi=data.frame(pandeiros_clima_fwi,"HAS_FIRE"=has_fire_pandeiros$HAS_FIRE)
 

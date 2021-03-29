@@ -1,6 +1,8 @@
 #load required library
 library(glmnet)
-cave_map_lasso$HAS_FIRE=cave_map_lasso$HAS_FIRE-1
+
+cavernas_topografic=data.frame(read.csv("modelo_topografico_cavernas.csv",dec = ",", sep = ";"))
+
 treino_cave_lasso=sample(1:nrow(cave_map_lasso), round(0.8*nrow(cave_map_lasso)))
 dados_treino_cave_lasso=cave_map_lasso[treino_cave_lasso,]
 dados_teste_cave_lasso=cave_map_lasso[-treino_cave_lasso,]
