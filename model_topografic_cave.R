@@ -27,7 +27,17 @@ dados_teste_cave_map=cavernas_topografic[-index_treino_cave_map,]
 colnames(dados_teste_cave_map)=c("HAS_FIRE","Elevation","Slope","NDVI","Hydrography","Road","LULC","Pop_Density")
 colnames(dados_treino_cave_map)=c("HAS_FIRE","Elevation","Slope","NDVI","Hydrography","Road","LULC","Pop_Density")
 
-model_map=glm(HAS_FIRE~Elevation+Slope+NDVI+Hydrography+Road+LULC,data = dados_treino_cave_map,family = binomial())
+
+
+model_map=glm(HAS_FIRE ~ .,data = dados_treino_cave_map,family = binomial())
+library(MuMIn)
+options(na.action = "na.fail") 
+dd <- dredge(model_map)
+View(dd)
+model.avg(dd, subset = delta < 4)
+#par(mar = c(3,5,6,4))
+#plot(dd, labAsExpr = TRUE)
+
 
 summary(model_map)
 
