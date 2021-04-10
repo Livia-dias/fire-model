@@ -6,13 +6,17 @@ titulo_grafico_pred = "Lasso Regression - APACP"
 arquivo_apa_leitura = "modelo_topográfico\\APA Cavernas\\matrix_topografic_cave.csv"
 arquivo_coef_saida = "modelo_topográfico\\APA Cavernas\\resultados\\coeficientes_lasso_cave.csv"
 arquivo_prob_saida = "modelo_topográfico\\APA Cavernas\\resultados\\probabilidade_lasso_cave.csv"
+anotacoes_da_apa = "modelo_topográfico\\APA Cavernas\\resultados\\anotacoes.csv"
+
+anotacoes = data.frame(matrix(ncol=2, nrow=0))
+colnames(anotacoes) = c("chave","valor")
 
 
 cavernas_topografic=data.frame(read.csv(arquivo_apa_leitura,dec = ",", sep = ";"))
 
-treino_cave_lasso=sample(1:nrow(cave_map_lasso), round(0.8*nrow(cave_map_lasso)))
-dados_treino_cave_lasso=cave_map_lasso[treino_cave_lasso,]
-dados_teste_cave_lasso=cave_map_lasso[-treino_cave_lasso,]
+treino_cave_lasso=sample(1:nrow(cavernas_topografic), round(0.8*nrow(cavernas_topografic)))
+dados_treino_cave_lasso=cavernas_topografic[treino_cave_lasso,]
+dados_teste_cave_lasso=cavernas_topografic[-treino_cave_lasso,]
 
 #convert training data to matrix format
 x <- model.matrix(HAS_FIRE~.,dados_treino_cave_lasso)
@@ -28,8 +32,11 @@ plot(cv.out)
 
 #min value of lambda
 lambda_min <- cv.out$lambda.min
+anotacoes[nrow(anotacoes) + 1,] = c("lambda_min",lambda_min)
 #best value of lambda
 lambda_1se <- cv.out$lambda.1se
+anotacoes[nrow(anotacoes) + 1,] = c("lambda_1se",lambda_1se)
+anotacoes[nrow(anotacoes) + 1,] = c("exp(lambda_1se)",exp(lambda_1se))
 #regression coefficients
 coeficients=coef(cv.out,s=lambda_1se)
 coefplot(cv.out, lambda=lambda_1se, sort="magnitude")
@@ -53,7 +60,8 @@ write.csv(results_cave_lasso,file = arquivo_prob_saida,row.names = FALSE)
 #confusion matrix
 table(pred=lasso_predict,true=dados_teste_cave_lasso$HAS_FIRE)
 #accuracy
-mean(lasso_predict==dados_teste_cave_lasso$HAS_FIRE)
+porcentagem_acerto = mean(lasso_predict==dados_teste_cave_lasso$HAS_FIRE)
+anotacoes[nrow(anotacoes) + 1,] = c("porcentagem_acerto",porcentagem_acerto)
 
 #grafico
 data_cave=cbind.data.frame(dados_teste_cave_lasso$HAS_FIRE,lasso_prob,lasso_predict)
@@ -71,3 +79,5 @@ grafico_has_fire <-ggplot(data_cave, aes(x=lasso_prob, y=dados_teste_cave_lasso$
   ylab("Predicted") + labs(title = "True Occurrences") 
 #+ labs(tag="a)")
 grafico_has_fire
+
+write.csv(anotacoes, file=anotacoes_da_apa)
