@@ -2,11 +2,11 @@
 library(glmnet)
 library(coefplot)
 
-titulo_grafico_pred = "Lasso Regression - APACP"
-arquivo_apa_leitura = "modelo_topográfico\\APA Cavernas\\matrix_topografic_cave.csv"
-arquivo_coef_saida = "modelo_topográfico\\APA Cavernas\\resultados\\coeficientes_lasso_cave.csv"
-arquivo_prob_saida = "modelo_topográfico\\APA Cavernas\\resultados\\probabilidade_lasso_cave.csv"
-anotacoes_da_apa = "modelo_topográfico\\APA Cavernas\\resultados\\anotacoes.csv"
+titulo_grafico_pred = "Lasso Regression - APARP"
+arquivo_apa_leitura = "modelo_topográfico\\APA Pandeiros\\matrix_topografic_pand.csv"
+arquivo_coef_saida = "modelo_topográfico\\APA Pandeiros\\resultados\\coeficientes_lasso_pand.csv"
+arquivo_prob_saida = "modelo_topográfico\\APA Pandeiros\\resultados\\probabilidade_lasso_pand.csv"
+anotacoes_da_apa = "modelo_topográfico\\APA Pandeiros\\resultados\\anotacoes.csv"
 
 anotacoes = data.frame(matrix(ncol=2, nrow=0))
 colnames(anotacoes) = c("chave","valor")

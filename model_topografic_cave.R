@@ -1,38 +1,59 @@
 #teste regressão logistica com variáveis topograficas
 
 library(tibble)
+library(glmnet)
+library(coefplot)
 
-cavernas_topografic=data.frame(read.csv("model_topografic_cave.csv",dec = ",", sep = ";"))
+titulo_grafico_pred = "Logistic Regression - APARP"
+arquivo_apa_leitura = "modelo_topográfico\\APA Pandeiros\\matrix_topografic_pand.csv"
+arquivo_coef_saida = "modelo_topográfico\\APA Pandeiros\\resultados\\coeficientes_log_reg_pand.csv"
+arquivo_prob_saida = "modelo_topográfico\\APA Pandeiros\\resultados\\probabilidade_log_reg_pand.csv"
+sumario_apa = "modelo_topográfico\\APA Pandeiros\\resultados\\modelo_sumario_pand.csv"
 
-cavernas_topografic$elev_cave[cavernas_topografic$elev_cave<0]=0
-cavernas_topografic$hidro_dist[cavernas_topografic$hidro_dist<0]=0
-cavernas_topografic$road_dista[cavernas_topografic$road_dista<0]=0
-cavernas_topografic$censo_cave[cavernas_topografic$censo_cave<0]=0
+cavernas_topografic=data.frame(read.csv(arquivo_apa_leitura,dec = ",", sep = ";"))
 
 cavernas_topografic=as.tibble(cavernas_topografic)
 
 cavernas_topografic$HAS_FIRE=as.factor(cavernas_topografic$HAS_FIRE)
-cavernas_topografic$Classe_cav=as.numeric(cavernas_topografic$Classe_cav)
+cavernas_topografic$LULC=as.numeric(cavernas_topografic$LULC)
 
 levels(cavernas_topografic$HAS_FIRE)=c("not-burned","burned") 
 cavernas_topografic$HAS_FIRE=relevel(cavernas_topografic$HAS_FIRE,"not-burned")
-levels(cavernas_topografic$Classe_cav)=c("Água","Área com influência antrópica","Áreas naturais","Cerrado","Vegetação com influência fluvial") 
+levels(cavernas_topografic$LULC)=c("Água","Área com influência antrópica","Áreas naturais","Cerrado","Vegetação com influência fluvial") 
 
 index_treino_cave_map=sample(1:nrow(cavernas_topografic), round(0.8*nrow(cavernas_topografic)))
 dados_treino_cave_map=cavernas_topografic[index_treino_cave_map,]
 dados_teste_cave_map=cavernas_topografic[-index_treino_cave_map,]
+colnames(dados_teste_cave_map)=c("HAS_FIRE","Elevation","Slope","NDVI","Hydrography","Road","LULC","Pop_Density")
+colnames(dados_treino_cave_map)=c("HAS_FIRE","Elevation","Slope","NDVI","Hydrography","Road","LULC","Pop_Density")
 
-model_map=glm(HAS_FIRE~elev_cave+slope_cave+NDVI_cave+hidro_dist+road_dista+censo_cave+Classe_cav,data = dados_treino_cave_map,family = binomial())
+model_map=glm(HAS_FIRE~Elevation+Slope+NDVI+Hydrography+Road+LULC,data = dados_treino_cave_map,family = binomial())
 
 summary(model_map)
+
 sumario_model=summary.glm(model_map)$coefficients
-write.csv(sumario_model, "modelo_sumario2.csv")
+#write.csv(sumario_model, sumario_apa)
 
-pred_map=predict(model_map,dados_teste_cave_map,type="response")
-View(pred_map)
+prob_map=predict(model_map,dados_teste_cave_map,type="response")
+reg_predict <- rep(0,nrow(dados_teste_cave_map))
+reg_predict[prob_map>.5] <- 1
 
-dados_teste_cave_map$Prob_fogo=pred_map
 
-View(dados_teste_cave_map[,c("HAS_FIRE","Prob_fogo")])
+grafico_predicao <-ggplot(dados_teste_cave_map, aes(x=prob_map, y=reg_predict)) + geom_point() + 
+  geom_smooth(method="glm", family="binomial", col="red") + xlab("Probability") + 
+  ylab("Predicted") + labs(title = titulo_grafico_pred) 
+#+ labs(tag="a)")
+grafico_predicao
 
-table(dados_teste_cave_map$HAS_FIRE,dados_teste_cave_map$Prob_fogo>0.5)
+true_ocurrences=ifelse(dados_teste_cave_map$HAS_FIRE=="burned",1,0)
+grafico_predicao <-ggplot(dados_teste_cave_map, aes(x=prob_map, y=true_ocurrences)) + geom_point() + 
+  geom_smooth(method="glm", family="binomial", col="red") + xlab("Probability") + 
+  ylab("Predicted") + labs(title = "True Occurrences")
+#+ labs(tag="a)")
+grafico_predicao
+
+dados_teste_cave_map$Prob_fogo=prob_map
+
+
+tabelinha = table(dados_teste_cave_map$HAS_FIRE,dados_teste_cave_map$Prob_fogo>0.5)
+tabelinha[1]/(tabelinha[1]+tabelinha[2])
