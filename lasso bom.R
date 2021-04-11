@@ -66,7 +66,6 @@ anotacoes[nrow(anotacoes) + 1,] = c("porcentagem_acerto",porcentagem_acerto)
 #grafico
 data_cave=cbind.data.frame(dados_teste_cave_lasso$HAS_FIRE,lasso_prob,lasso_predict)
 names(data_cave)=c("HAS_FIRE","lasso_prob","lasso_predict")
-View(data_cave)
 
 grafico_predicao <-ggplot(data_cave, aes(x=lasso_prob, y=lasso_predict)) + geom_point() + 
   geom_smooth(method="glm", family="binomial", col="red") + xlab("Probability") + 

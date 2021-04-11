@@ -4,11 +4,11 @@ library(tibble)
 library(glmnet)
 library(coefplot)
 
-titulo_grafico_pred = "Logistic Regression - APARP"
-arquivo_apa_leitura = "modelo_topográfico\\APA Pandeiros\\matrix_topografic_pand.csv"
-arquivo_coef_saida = "modelo_topográfico\\APA Pandeiros\\resultados\\coeficientes_log_reg_pand.csv"
-arquivo_prob_saida = "modelo_topográfico\\APA Pandeiros\\resultados\\probabilidade_log_reg_pand.csv"
-sumario_apa = "modelo_topográfico\\APA Pandeiros\\resultados\\modelo_sumario_pand.csv"
+titulo_grafico_pred = "Logistic Regression - APACP"
+arquivo_apa_leitura = "modelo_topográfico\\APA Cavernas\\matrix_topografic_cave.csv"
+arquivo_coef_saida = "modelo_topográfico\\APA Cavernas\\resultados\\coeficientes_log_reg_cave.csv"
+arquivo_prob_saida = "modelo_topográfico\\APA Cavernas\\resultados\\probabilidade_log_reg_cave.csv"
+sumario_apa = "modelo_topográfico\\APA Cavernas\\resultados\\modelo_sumario_cave.csv"
 
 cavernas_topografic=data.frame(read.csv(arquivo_apa_leitura,dec = ",", sep = ";"))
 
@@ -19,7 +19,7 @@ cavernas_topografic$LULC=as.numeric(cavernas_topografic$LULC)
 
 levels(cavernas_topografic$HAS_FIRE)=c("not-burned","burned") 
 cavernas_topografic$HAS_FIRE=relevel(cavernas_topografic$HAS_FIRE,"not-burned")
-levels(cavernas_topografic$LULC)=c("Água","Área com influência antrópica","Áreas naturais","Cerrado","Vegetação com influência fluvial") 
+
 
 index_treino_cave_map=sample(1:nrow(cavernas_topografic), round(0.8*nrow(cavernas_topografic)))
 dados_treino_cave_map=cavernas_topografic[index_treino_cave_map,]
@@ -35,16 +35,13 @@ options(na.action = "na.fail")
 dd <- dredge(model_map)
 View(dd)
 model.avg(dd, subset = delta < 4)
-#par(mar = c(3,5,6,4))
-#plot(dd, labAsExpr = TRUE)
+model_AIC=get.models(dd,1)[[1]]
 
 
-summary(model_map)
+sumario_model=summary.glm(model_AIC)$coefficients
+write.csv(sumario_model, sumario_apa)
 
-sumario_model=summary.glm(model_map)$coefficients
-#write.csv(sumario_model, sumario_apa)
-
-prob_map=predict(model_map,dados_teste_cave_map,type="response")
+prob_map=predict(model_AIC,dados_teste_cave_map,type="response")
 reg_predict <- rep(0,nrow(dados_teste_cave_map))
 reg_predict[prob_map>.5] <- 1
 
