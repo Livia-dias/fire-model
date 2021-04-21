@@ -4,28 +4,33 @@ library(tibble)
 library(glmnet)
 library(coefplot)
 
-titulo_grafico_pred = "Logistic Regression - APACP"
-arquivo_apa_leitura = "modelo_topográfico\\APA Cavernas\\matrix_topografic_cave.csv"
-arquivo_coef_saida = "modelo_topográfico\\APA Cavernas\\resultados\\coeficientes_log_reg_cave.csv"
-arquivo_prob_saida = "modelo_topográfico\\APA Cavernas\\resultados\\probabilidade_log_reg_cave.csv"
-sumario_apa = "modelo_topográfico\\APA Cavernas\\resultados\\modelo_sumario_cave.csv"
-
+titulo_grafico_coef = "Logistic Regression - APACG"
+titulo_grafico_pred = "Logistic Regression - APACG"
+arquivo_apa_leitura = "modelo_ano\\APA Cocha\\modelo_topografic_ano_cocha.csv"
+arquivo_coef_saida = "modelo_ano\\APA Cocha\\resultados\\coeficientes_log_reg_cocha.csv"
+arquivo_prob_saida = "modelo_ano\\APA Cocha\\resultados\\probabilidade_log_reg_cocha.csv"
+sumario_apa = "modelo_ano\\APA Cocha\\resultados\\modelo_sumario_cocha.csv"
+acuracia_apa = "modelo_ano\\APA Cocha\\resultados\\modelo_acuracia_cocha.csv"
+sumario_aic = "modelo_ano\\APA Cocha\\resultados\\best_AIC_sumario_cocha.csv"
+  
 cavernas_topografic=data.frame(read.csv(arquivo_apa_leitura,dec = ",", sep = ";"))
 
 cavernas_topografic=as.tibble(cavernas_topografic)
 
 cavernas_topografic$HAS_FIRE=as.factor(cavernas_topografic$HAS_FIRE)
-cavernas_topografic$LULC=as.numeric(cavernas_topografic$LULC)
+cavernas_topografic$LULC=as.factor(cavernas_topografic$LULC)
 
 levels(cavernas_topografic$HAS_FIRE)=c("not-burned","burned") 
 cavernas_topografic$HAS_FIRE=relevel(cavernas_topografic$HAS_FIRE,"not-burned")
 
+dados_treino_cave_map=cavernas_topografic[cavernas_topografic$Year<2016,]
+dados_teste_cave_map=cavernas_topografic[cavernas_topografic$Year>=2016,]
 
-index_treino_cave_map=sample(1:nrow(cavernas_topografic), round(0.8*nrow(cavernas_topografic)))
-dados_treino_cave_map=cavernas_topografic[index_treino_cave_map,]
-dados_teste_cave_map=cavernas_topografic[-index_treino_cave_map,]
-colnames(dados_teste_cave_map)=c("HAS_FIRE","Elevation","Slope","NDVI","Hydrography","Road","LULC","Pop_Density")
-colnames(dados_treino_cave_map)=c("HAS_FIRE","Elevation","Slope","NDVI","Hydrography","Road","LULC","Pop_Density")
+dados_teste_cave_map=dados_teste_cave_map[1:(length(dados_teste_cave_map)-1)]
+dados_treino_cave_map=dados_treino_cave_map[1:(length(dados_treino_cave_map)-1)]
+
+colnames(dados_teste_cave_map)=c("HAS_FIRE","Elevation","Slope","NDVI","Road","Hydrography","Pop_dens","LULC")
+colnames(dados_treino_cave_map)=c("HAS_FIRE","Elevation","Slope","NDVI","Road","Hydrography","Pop_dens","LULC")
 
 
 
@@ -33,12 +38,16 @@ model_map=glm(HAS_FIRE ~ .,data = dados_treino_cave_map,family = binomial())
 library(MuMIn)
 options(na.action = "na.fail") 
 dd <- dredge(model_map)
-View(dd)
-model.avg(dd, subset = delta < 4)
 model_AIC=get.models(dd,1)[[1]]
+best_AIC_model=model.avg(dd, subset = delta < 4)
+write.csv(best_AIC_model$coefficients, sumario_aic)
 
+library(sjPlot)
+plot_model(model_map,type = "std", show.values = TRUE, title = titulo_grafico_coef, 
+           #axis.labels = c("1","2","3","4","5","6","7"),
+           sort.est = TRUE, vline.color = "red")
 
-sumario_model=summary.glm(model_AIC)$coefficients
+sumario_model=summary(best_AIC_model)$coefficients
 write.csv(sumario_model, sumario_apa)
 
 prob_map=predict(model_AIC,dados_teste_cave_map,type="response")
@@ -63,4 +72,5 @@ dados_teste_cave_map$Prob_fogo=prob_map
 
 
 tabelinha = table(dados_teste_cave_map$HAS_FIRE,dados_teste_cave_map$Prob_fogo>0.5)
+write.csv(tabelinha, acuracia_apa)
 tabelinha[1]/(tabelinha[1]+tabelinha[2])
