@@ -6,12 +6,17 @@ library(coefplot)
 library(MuMIn)
 library(sjPlot)
 library(performance)
+library(dplyr)
+library(pROC)
+library(graphics)
 
-APA = "cavernas" #### LEMBRAR DE MUDAR PLOT_MODEL LINHA 88
+
+APA = "cocha" #### LEMBRAR DE MUDAR PLOT_MODEL LINHA 88
 
 if(APA == "cocha") {
   titulo_grafico_coef = "APA Cocha e Gibão"
   titulo_grafico_pred = "APA Cocha e Gibão"
+  titulo_grafico_auc = "Regressão Logística - APA Cocha e Gibão"
   arquivo_apa_leitura = "modelo_ano\\APA Cocha\\modelo_topografic_ano_cocha.csv"
   arquivo_coef_saida = "modelo_ano\\APA Cocha\\resultados\\coeficientes_log_reg_cocha.csv"
   arquivo_prob_saida = "modelo_ano\\APA Cocha\\resultados\\probabilidade_log_reg_cocha.csv"
@@ -25,6 +30,7 @@ if(APA == "cocha") {
 if(APA == "cavernas") {
   titulo_grafico_coef = "APA Cavernas do Peruaçu"
   titulo_grafico_pred = "APA Cavernas do Peruaçu"
+  titulo_grafico_auc = "Regressão Logística - APA Cavernas"
   arquivo_apa_leitura = "modelo_ano\\APA Cavernas\\modelo_topografic_ano_cave.csv"
   arquivo_coef_saida = "modelo_ano\\APA Cavernas\\resultados\\coeficientes_log_reg_cave.csv"
   arquivo_prob_saida = "modelo_ano\\APA Cavernas\\resultados\\probabilidade_log_reg_cave.csv"
@@ -38,6 +44,7 @@ if(APA == "cavernas") {
 if(APA == "pandeiros") {
   titulo_grafico_coef = "APA Pandeiros"
   titulo_grafico_pred = "APA Pandeiros"
+  titulo_grafico_auc = "Regressão Logística - APA Pandeiros"
   arquivo_apa_leitura = "modelo_ano\\APA Pandeiros\\modelo_topografic_ano_pand.csv"
   arquivo_coef_saida = "modelo_ano\\APA Pandeiros\\resultados\\coeficientes_log_reg_pand.csv"
   arquivo_prob_saida = "modelo_ano\\APA Pandeiros\\resultados\\probabilidade_log_reg_pand.csv"
@@ -87,6 +94,8 @@ write.csv(best_AIC_model_std$coefficients, sumario_aic_std)
 sumario_model_std=summary(model_AIC_std)$coefficients
 write.csv(sumario_model_std, sumario_apa_std)
 
+view(sumario_model)
+
 ###STD
 
 model_map=glm(HAS_FIRE ~ .,data = dados_treino_cave_map,family = binomial(link = "logit"))
@@ -94,13 +103,13 @@ dd <- dredge(model_map)
 model_AIC=get.models(dd,TRUE)[[1]]
 
 plot_model(model_AIC,type = "std", show.values = TRUE, title = titulo_grafico_coef, 
-           #colors = "system",
+           #colors = "Accent",
             value.offset = .4, vline.color = "#c8dae8",
-           #axis.labels = c("Lavoura Temporária","Formação Campestre","Floresta Plantada","Pastagem",
-           #"Área não vegetada","Formação Savânica","NDVI", "Distância de Hidrografia", "Altitude",
-           #"Distância de Rodovias", "Densidade Populacional"),
+           #axis.labels = c("Distância de Habitações","Declividade","Distância de Hidrografia","Altitude","Distância de Rodovias"), 
+                           #,"Área não vegetada",,,"Floresta Plantada","Lavoura Temporária"),
            #41= Lavoura Temporária; 12= Formação Campestre; 9= Floresta Plantada;
            #15= Pastagem; 25= Área não vegetada; 4= Formação Savânica; 3= Formação Florestal
+           #33= Rio
            sort.est = TRUE) + theme_sjplot2()
 #APACP - Accent
 #APACG - SEM NADA (comentar linha 62)
@@ -129,7 +138,7 @@ grafico_predicao
   #geom_smooth(method="glm", family="binomial", col="red") + xlab("Probability") + 
   #ylab("Predicted") + labs(title = "True Occurrences")
 #+ labs(tag="a)")
-grafico_predicao
+#grafico_predicao
 
 dados_teste_cave_map$Prob_fogo=prob_map
 
@@ -147,5 +156,28 @@ exp(cbind(OR=coef(model_AIC), confint(model_AIC)))
 odds_ratio=exp(cbind(OR =coef(model_AIC), confint.default(model_AIC)))
 write.csv(odds_ratio, razões_de_chances)
 
-##
-anova(model_AIC, 'II')
+vp= tabelinha [1,1];vp
+fn=tabelinha [2,1];fn
+fp=tabelinha [1,2];fp
+vn=tabelinha [2,2];vn
+
+Taxa_de_Falso_Positivo = vn/(vn+fp)
+  
+Taxa_de_Verdadeiro_Positivo = vp/(vp+fn)
+
+pred_roc_cave= dplyr::tibble(prob_map, 
+                             "HAS_FIRE" = as.factor(as.numeric(dados_teste_cave_map$HAS_FIRE)-1))%>% arrange(desc(prob_map))
+
+roc_model= pROC::roc(pred_roc_cave$HAS_FIRE,pred_roc_cave$prob_map, percent = TRUE)
+
+par(pty = "s")
+#jpeg(file="test.jpeg", bg="transparent")
+plot(roc_model,print.auc = TRUE, legacy.axes = TRUE, grid=TRUE, 
+         identity.col = "light blue", print.thres = TRUE,
+         print.thres.col="red",print.thres.pattern=ifelse(roc_model$percent, "Limiar = %.2f", "%.3f"),
+         #col="blue",
+         main= titulo_grafico_auc,
+         print.thres.adj=c(-1.55,19.2),
+         xlab = "Taxa de Falso Positivo (Especificidade %)", ylab = "Taxa de Verdadeiro Positivo (Sensibilidade %)")
+
+#dev.off()
