@@ -12,10 +12,36 @@ library(graphics)
 library(raster)
 library(rgdal)
 
+menor = function (list_raster) {
+  i = 2
+  inter = 0
+  for(i in length(list_raster)){
+    r1 = raster(list_raster[[i-1]])
+    r2 = raster(list_raster[[i]])
+    inter = intersect(extent(r1), extent(r2))
+  }
+  
+  return(inter)
+}
+
+generate_rasters = function(caminho){
+  raster_files = list.files(path = caminho, pattern = "*.tif$", full.names = TRUE)
+  menor_inter = menor(raster_files)
+  rasters = raster::stack()
+  first_raster = raster(raster_files[[1]])
+  
+  for(file in raster_files){
+    r = crop(raster(file), menor_inter)
+    r = resample(r, first_raster)
+    rasters = addLayer(rasters, r)
+  }
+  return(rasters)
+}
 
 APA = "cocha" #### LEMBRAR DE MUDAR PLOT_MODEL LINHA 88
 
 if(APA == "cocha") {
+  caminho_raster = "APA Cochá e Gibão"
   titulo_grafico_coef = "APA Cocha e Gibão"
   titulo_grafico_pred = "APA Cocha e Gibão"
   titulo_grafico_auc = "Regressão Logística - APA Cocha e Gibão"
@@ -88,7 +114,7 @@ dados_treino_cave_map_std[2:8]=scale(dados_treino_cave_map_std[2:8])
 model_map_std=glm(HAS_FIRE ~ .,data = dados_treino_cave_map_std,family = binomial(link = "logit"))
 
 dd_std <- dredge(model_map_std)
-model_AIC_std=get.models(dd_std,TRUE)[[1]]
+model_AIC_std=get.models(dd_std,1)[[1]]
 best_AIC_model_std=model.avg(dd_std, subset = delta < 4)
 write.csv(best_AIC_model_std$coefficients, sumario_aic_std)
 
@@ -96,13 +122,11 @@ write.csv(best_AIC_model_std$coefficients, sumario_aic_std)
 sumario_model_std=summary(model_AIC_std)$coefficients
 write.csv(sumario_model_std, sumario_apa_std)
 
-view(sumario_model)
-
 ###STD
 
 model_map=glm(HAS_FIRE ~ .,data = dados_treino_cave_map,family = binomial(link = "logit"))
 dd <- dredge(model_map)
-model_AIC=get.models(dd,TRUE)[[1]]
+model_AIC=get.models(dd,1)[[1]]
 
 plot_model(model_AIC,type = "std", show.values = TRUE, title = titulo_grafico_coef, 
            #colors = "Accent",
@@ -183,3 +207,14 @@ plot(roc_model,print.auc = TRUE, legacy.axes = TRUE, grid=TRUE,
          xlab = "Taxa de Falso Positivo (Especificidade %)", ylab = "Taxa de Verdadeiro Positivo (Sensibilidade %)")
 
 #dev.off()
+
+rasters = generate_rasters(caminho_raster)
+rasterzao = raster("APA Cochá e Gibão\\ndvi_20anos_cocha.tif")
+plot(rasterzao)
+canProcessInMemory(rasterzao, verbose = TRUE)
+
+bfun <- function(x) { if (is.na(x[1])){  } else { model_AIC$coefficients }}
+bfun(rasters[[1]])
+x <- calc(rasters, bfun)
+new_raster=predict(rasters,x,type="response")
+plot(new_raster)
