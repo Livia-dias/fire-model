@@ -9,6 +9,8 @@ library(performance)
 library(dplyr)
 library(pROC)
 library(graphics)
+library(raster)
+library(rgdal)
 
 
 APA = "cocha" #### LEMBRAR DE MUDAR PLOT_MODEL LINHA 88
