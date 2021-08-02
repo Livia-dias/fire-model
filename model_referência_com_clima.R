@@ -11,49 +11,49 @@ library(pROC)
 library(graphics)
 
 
-APA = "cavernas" #### LEMBRAR DE MUDAR PLOT_MODEL LINHA 88
+APA = "cocha" #### LEMBRAR DE MUDAR PLOT_MODEL LINHA 88
 
 if(APA == "cocha") {
   titulo_grafico_coef = "APA Cocha e Gibão"
   titulo_grafico_pred = "APA Cocha e Gibão"
   titulo_grafico_auc = "Regressão Logística - APA Cocha e Gibão"
-  arquivo_apa_leitura = "modelo_ano\\APA Cocha\\modelo_topografic_ano_cocha.csv"
-  arquivo_coef_saida = "modelo_ano\\APA Cocha\\resultados\\coeficientes_log_reg_cocha.csv"
-  arquivo_prob_saida = "modelo_ano\\APA Cocha\\resultados\\probabilidade_log_reg_cocha.csv"
-  sumario_apa = "modelo_ano\\APA Cocha\\resultados\\modelo_sumario_cocha.csv"
-  sumario_apa_std = "modelo_ano\\APA Cocha\\resultados\\modelo_sumario_std_cocha.csv"
-  acuracia_apa = "modelo_ano\\APA Cocha\\resultados\\modelo_acuracia_cocha.csv"
-  sumario_aic = "modelo_ano\\APA Cocha\\resultados\\best_AIC_sumario_cocha.csv"
-  sumario_aic_std = "modelo_ano\\APA Cocha\\resultados\\best_AIC_sumario_std_cocha.csv"
-  razões_de_chances= "modelo_ano\\APA Cocha\\resultados\\odds_ratio_cocha.csv"
+  arquivo_apa_leitura = "MODELO_REFERÊNCIA\\APA Cocha\\modelo_referência_com_clima_cocha.csv"
+  arquivo_coef_saida = "MODELO_REFERÊNCIA\\APA Cocha\\resultados\\coeficientes_log_reg_cocha.csv"
+  arquivo_prob_saida = "MODELO_REFERÊNCIA\\APA Cocha\\resultados\\probabilidade_log_reg_cocha.csv"
+  sumario_apa = "MODELO_REFERÊNCIA\\APA Cocha\\resultados\\modelo_sumario_cocha.csv"
+  sumario_apa_std = "MODELO_REFERÊNCIA\\APA Cocha\\resultados\\modelo_sumario_std_cocha.csv"
+  acuracia_apa = "MODELO_REFERÊNCIA\\APA Cocha\\resultados\\modelo_acuracia_cocha.csv"
+  sumario_aic = "MODELO_REFERÊNCIA\\APA Cocha\\resultados\\best_AIC_sumario_cocha.csv"
+  sumario_aic_std = "MODELO_REFERÊNCIA\\APA Cocha\\resultados\\best_AIC_sumario_std_cocha.csv"
+  razões_de_chances= "MODELO_REFERÊNCIA\\APA Cocha\\resultados\\odds_ratio_cocha.csv"
 }
 if(APA == "cavernas") {
   titulo_grafico_coef = "APA Cavernas do Peruaçu"
   titulo_grafico_pred = "APA Cavernas do Peruaçu"
   titulo_grafico_auc = "Regressão Logística - APA Cavernas"
-  arquivo_apa_leitura = "modelo_ano\\APA Cavernas\\modelo_topografic_ano_cave.csv"
-  arquivo_coef_saida = "modelo_ano\\APA Cavernas\\resultados\\coeficientes_log_reg_cave.csv"
-  arquivo_prob_saida = "modelo_ano\\APA Cavernas\\resultados\\probabilidade_log_reg_cave.csv"
-  sumario_apa = "modelo_ano\\APA Cavernas\\resultados\\modelo_sumario_cave.csv"
-  sumario_apa_std = "modelo_ano\\APA Cavernas\\resultados\\modelo_sumario_std_cave.csv"
-  acuracia_apa = "modelo_ano\\APA Cavernas\\resultados\\modelo_acuracia_cave.csv"
-  sumario_aic = "modelo_ano\\APA Cavernas\\resultados\\best_AIC_sumario_cave.csv"
-  sumario_aic_std = "modelo_ano\\APA Cavernas\\resultados\\best_AIC_sumario_std_cave.csv"
-  razões_de_chances= "modelo_ano\\APA Cavernas\\resultados\\odds_ratio_cave.csv"
+  arquivo_apa_leitura = "MODELO_REFERÊNCIA\\APA Cavernas\\modelo_referência_com_clima_cavernas.csv"
+  arquivo_coef_saida = "MODELO_REFERÊNCIA\\APA Cavernas\\resultados\\coeficientes_log_reg_cave.csv"
+  arquivo_prob_saida = "MODELO_REFERÊNCIA\\APA Cavernas\\resultados\\probabilidade_log_reg_cave.csv"
+  sumario_apa = "MODELO_REFERÊNCIA\\APA Cavernas\\resultados\\modelo_sumario_cave.csv"
+  sumario_apa_std = "MODELO_REFERÊNCIA\\APA Cavernas\\resultados\\modelo_sumario_std_cave.csv"
+  acuracia_apa = "MODELO_REFERÊNCIA\\APA Cavernas\\resultados\\modelo_acuracia_cave.csv"
+  sumario_aic = "MODELO_REFERÊNCIA\\APA Cavernas\\resultados\\best_AIC_sumario_cave.csv"
+  sumario_aic_std = "MODELO_REFERÊNCIA\\APA Cavernas\\resultados\\best_AIC_sumario_std_cave.csv"
+  razões_de_chances= "MODELO_REFERÊNCIA\\APA Cavernas\\resultados\\odds_ratio_cave.csv"
 }
 if(APA == "pandeiros") {
   titulo_grafico_coef = "APA Pandeiros"
   titulo_grafico_pred = "APA Pandeiros"
   titulo_grafico_auc = "Regressão Logística - APA Pandeiros"
-  arquivo_apa_leitura = "modelo_ano\\APA Pandeiros\\modelo_topografic_ano_pand.csv"
-  arquivo_coef_saida = "modelo_ano\\APA Pandeiros\\resultados\\coeficientes_log_reg_pand.csv"
-  arquivo_prob_saida = "modelo_ano\\APA Pandeiros\\resultados\\probabilidade_log_reg_pand.csv"
-  sumario_apa = "modelo_ano\\APA Pandeiros\\resultados\\modelo_sumario_pand.csv"
-  sumario_apa_std = "modelo_ano\\APA Pandeiros\\resultados\\modelo_sumario_std_pand.csv"
-  acuracia_apa = "modelo_ano\\APA Pandeiros\\resultados\\modelo_acuracia_pand.csv"
-  sumario_aic = "modelo_ano\\APA Pandeiros\\resultados\\best_AIC_sumario_pand.csv"
-  sumario_aic_std = "modelo_ano\\APA Pandeiros\\resultados\\best_AIC_sumario_std_pand.csv"
-  razões_de_chances= "modelo_ano\\APA Pandeiros\\resultados\\odds_ratio_pand.csv"
+  arquivo_apa_leitura = "MODELO_REFERÊNCIA\\APA Pandeiros\\modelo_referência_com_clima_pandeiros.csv"
+  arquivo_coef_saida = "MODELO_REFERÊNCIA\\APA Pandeiros\\resultados\\coeficientes_log_reg_pand.csv"
+  arquivo_prob_saida = "MODELO_REFERÊNCIA\\APA Pandeiros\\resultados\\probabilidade_log_reg_pand.csv"
+  sumario_apa = "MODELO_REFERÊNCIA\\APA Pandeiros\\resultados\\modelo_sumario_pand.csv"
+  sumario_apa_std = "MODELO_REFERÊNCIA\\APA Pandeiros\\resultados\\modelo_sumario_std_pand.csv"
+  acuracia_apa = "MODELO_REFERÊNCIA\\APA Pandeiros\\resultados\\modelo_acuracia_pand.csv"
+  sumario_aic = "MODELO_REFERÊNCIA\\APA Pandeiros\\resultados\\best_AIC_sumario_pand.csv"
+  sumario_aic_std = "MODELO_REFERÊNCIA\\APA Pandeiros\\resultados\\best_AIC_sumario_std_pand.csv"
+  razões_de_chances= "MODELO_REFERÊNCIA\\APA Pandeiros\\resultados\\odds_ratio_pand.csv"
 }
 
 cavernas_topografic=data.frame(read.csv(arquivo_apa_leitura,dec = ",", sep = ";"))
@@ -69,20 +69,23 @@ levels(cavernas_topografic$HAS_FIRE)=c("not-burned","burned")
 cavernas_topografic$HAS_FIRE=relevel(cavernas_topografic$HAS_FIRE, ref = "not-burned")
 
 #Treino: 2015 pra trás (incluso 2015). Teste: 2016 pra frente (incluso 2016)
-dados_treino_cave_map=cavernas_topografic[cavernas_topografic$Year<2016,]
-dados_teste_cave_map=cavernas_topografic[cavernas_topografic$Year>=2016,]
+dados_treino_cave_map=cavernas_topografic[cavernas_topografic$year<2016,]
+dados_teste_cave_map=cavernas_topografic[cavernas_topografic$year>=2016,]
 
 dados_teste_cave_map=dados_teste_cave_map[1:(length(dados_teste_cave_map)-1)]
 dados_treino_cave_map=dados_treino_cave_map[1:(length(dados_treino_cave_map)-1)]
 
-colnames(dados_teste_cave_map)=c("HAS_FIRE","Elevation","Slope","NDVI","Road","Hydrography","Pop_dens","Ocupations", "LULC")
-colnames(dados_treino_cave_map)=c("HAS_FIRE","Elevation","Slope","NDVI","Road","Hydrography","Pop_dens","Ocupations","LULC")
+colnames(dados_teste_cave_map)=c("HAS_FIRE","Elevation","Slope","NDVI","Road","Hydrography","Pop_dens","Ocupations", "LULC", "Temperature", 
+                                 "RH", "Precipitation", "Wind Speed", "FMC", "DMC", "DC")
+colnames(dados_treino_cave_map)=c("HAS_FIRE","Elevation","Slope","NDVI","Road","Hydrography","Pop_dens","Ocupations","LULC", "Temperature", 
+                                  "RH", "Precipitation", "Wind Speed", "FMC", "DMC", "DC")
 
 options(na.action = "na.fail") 
 
 ###STD
 dados_treino_cave_map_std= dados_treino_cave_map
 dados_treino_cave_map_std[2:8]=scale(dados_treino_cave_map_std[2:8])
+dados_treino_cave_map_std[10:16]=scale(dados_treino_cave_map_std[10:16])
 model_map_std=glm(HAS_FIRE ~ .,data = dados_treino_cave_map_std,family = binomial(link = "logit"))
 
 dd_std <- dredge(model_map_std)
@@ -103,9 +106,9 @@ model_AIC=get.models(dd,TRUE)[[1]]
 
 plot_model(model_AIC,type = "std", show.values = TRUE, title = titulo_grafico_coef, 
            #colors = "Accent",
-            value.offset = .4, vline.color = "#c8dae8",
+           value.offset = .4, vline.color = "#c8dae8",
            #axis.labels = c("Distância de Habitações","Declividade","Distância de Hidrografia","Altitude","Distância de Rodovias"), 
-                           #,"Área não vegetada",,,"Floresta Plantada","Lavoura Temporária"),
+           #,"Área não vegetada",,,"Floresta Plantada","Lavoura Temporária"),
            #41= Lavoura Temporária; 12= Formação Campestre; 9= Floresta Plantada;
            #15= Pastagem; 25= Área não vegetada; 4= Formação Savânica; 3= Formação Florestal
            #33= Rio
@@ -134,8 +137,8 @@ grafico_predicao
 
 #true_ocurrences=ifelse(dados_teste_cave_map$HAS_FIRE=="burned",1,0)
 #grafico_predicao <-ggplot(dados_teste_cave_map, aes(x=prob_map, y=true_ocurrences)) + geom_point() + 
-  #geom_smooth(method="glm", family="binomial", col="red") + xlab("Probability") + 
-  #ylab("Predicted") + labs(title = "True Occurrences")
+#geom_smooth(method="glm", family="binomial", col="red") + xlab("Probability") + 
+#ylab("Predicted") + labs(title = "True Occurrences")
 #+ labs(tag="a)")
 #grafico_predicao
 
@@ -161,7 +164,7 @@ fp=tabelinha [1,2];fp
 vn=tabelinha [2,2];vn
 
 Taxa_de_Falso_Positivo = vn/(vn+fp)
-  
+
 Taxa_de_Verdadeiro_Positivo = vp/(vp+fn)
 
 pred_roc_cave= dplyr::tibble(prob_map, 
@@ -172,11 +175,11 @@ roc_model= pROC::roc(pred_roc_cave$HAS_FIRE,pred_roc_cave$prob_map, percent = TR
 par(pty = "s")
 #jpeg(file="test.jpeg", bg="transparent")
 plot(roc_model,print.auc = TRUE, legacy.axes = TRUE, grid=TRUE, 
-         identity.col = "light blue", print.thres = TRUE,
-         print.thres.col="red",print.thres.pattern=ifelse(roc_model$percent, "Limiar = %.2f", "%.3f"),
-         #col="blue",
-         main= titulo_grafico_auc,
-         print.thres.adj=c(-1.55,19.2),
-         xlab = "Taxa de Falso Positivo (Especificidade %)", ylab = "Taxa de Verdadeiro Positivo (Sensibilidade %)")
+     identity.col = "light blue", print.thres = TRUE,
+     print.thres.col="red",print.thres.pattern=ifelse(roc_model$percent, "Limiar = %.2f", "%.3f"),
+     #col="blue",
+     main= titulo_grafico_auc,
+     print.thres.adj=c(-1.55,19.2),
+     xlab = "Taxa de Falso Positivo (Especificidade %)", ylab = "Taxa de Verdadeiro Positivo (Sensibilidade %)")
 
 #dev.off()
