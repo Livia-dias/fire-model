@@ -15,7 +15,7 @@ public class FocosWithClimaRow {
     @Parsed(index = 0)
     private Integer hasFire;
     @Parsed(index = 1)
-    private String elevation;
+    private Double elevation;
     @Parsed(index = 2)
     private Double slope;
     @Parsed(index = 3)

@@ -7,7 +7,6 @@ import lombok.*;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @EqualsAndHashCode
 public class OutputRow {
 

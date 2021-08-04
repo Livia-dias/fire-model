@@ -2,19 +2,19 @@ package com.testcsv.testcsv.ndvi.main;
 
 import com.testcsv.testcsv.ndvi.InputRow;
 import com.testcsv.testcsv.ndvi.OutputRow;
+import com.testcsv.testcsv.ndvi.OutputWithDataRow;
 import com.testcsv.testcsv.newOne.PathData;
 import com.testcsv.testcsv.utils.AllMapper;
 import com.testcsv.testcsv.utils.Utils;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,7 +30,7 @@ public class NdviFixer {
     }
 
     @SneakyThrows
-    @EventListener(ApplicationReadyEvent.class)
+    //@EventListener(ApplicationReadyEvent.class)
     public void readAll() {
 
         List<PathData> caminhos = List.of(
@@ -53,7 +53,7 @@ public class NdviFixer {
             File outputFile = Files.walk(Paths.get(caminho.getInfoPath()))
                     .filter(Files::isRegularFile)
                     .collect(Collectors.toList()).get(0).toFile();
-            List<OutputRow> output = createNewOutput(outputFile, rows);
+            List<OutputWithDataRow> output = createNewOutput(outputFile, rows);
             List<String> headers = Arrays.asList(
                     "hasFire",
                     "elevation",
@@ -64,15 +64,17 @@ public class NdviFixer {
                     "popDens",
                     "ocupations",
                     "lulc",
-                    "year");
-            Utils.write(caminho, output, OutputRow.class, headers);
+                    "year",
+                    "data");
+            Utils.write(caminho, output, OutputWithDataRow.class, headers);
         }
     }
 
-    private List<OutputRow> createNewOutput(File outFile, List<InputRow> inputRows) {
+    private List<OutputWithDataRow> createNewOutput(File outFile, List<InputRow> inputRows) {
         List<OutputRow> rowsToChange = Utils.readFoco(outFile, OutputRow.class);
         List<OutputRow> toChange = rowsToChange.stream().filter(r -> r.getHasFire() == 1).collect(Collectors.toList());
 
+        List<OutputWithDataRow> out = new LinkedList<>();
         Map<Integer, List<InputRow>> lido = inputRows.stream().collect(Collectors.groupingBy(i -> i.getDatahora().getYear()));
         Map<Integer, List<OutputRow>> praMudar = toChange.stream().collect(Collectors.groupingBy(OutputRow::getYear));
         for (Integer key : lido.keySet()) {
@@ -84,9 +86,11 @@ public class NdviFixer {
             for (int i = 0; i < input.size(); i++) {
                 Double ndvi = input.get(i).getNdvi();
                 output.get(i).setNdvi(ndvi);
+                LocalDateTime data = input.get(i).getDatahora();
+                out.add(allMapper.toOutWithData(output.get(i), data.toString()));
             }
         }
-        return rowsToChange;
+        return out;
     }
 
     private List<InputRow> fillNdvi(File file) {
