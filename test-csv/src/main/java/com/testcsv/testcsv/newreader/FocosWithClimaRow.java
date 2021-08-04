@@ -54,4 +54,5 @@ public class FocosWithClimaRow {
     private Double dailySeverityRating;
     @Parsed(index = 20)
     private Integer year;
+
 }
