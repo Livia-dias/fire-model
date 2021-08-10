@@ -9,8 +9,6 @@ import com.testcsv.testcsv.utils.AllMapper;
 import com.testcsv.testcsv.utils.Utils;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -34,7 +32,7 @@ public class NdviWithClima {
     }
 
     @SneakyThrows
-    @EventListener(ApplicationReadyEvent.class)
+    //@EventListener(ApplicationReadyEvent.class)
     public void readAll() {
 
         List<DataPaths> caminhos = List.of(

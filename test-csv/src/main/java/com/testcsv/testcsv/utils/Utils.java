@@ -33,6 +33,18 @@ public class Utils {
     }
 
 
+    public static <T> void write(String path, List<T> parsedRows, Class<T> clazz, List<String> headers){
+        BeanWriterProcessor<T> rowProcessor = new BeanWriterProcessor<>(clazz);
+        CsvWriterSettings settings = new CsvWriterSettings();
+        settings.setRowWriterProcessor(rowProcessor);
+        String[] headerList = new String[headers.size()];
+        settings.setHeaders(headers.toArray(headerList));
+        File outFile = new File(path);
+        CsvWriter csvWriter = new CsvWriter(outFile, settings);
+        csvWriter.writeHeaders();
+        csvWriter.processRecordsAndClose(parsedRows);
+    }
+
     public static <T> void write(PathData data, List<T> parsedRows, Class<T> clazz, List<String> headers){
         BeanWriterProcessor<T> rowProcessor = new BeanWriterProcessor<>(clazz);
         CsvWriterSettings settings = new CsvWriterSettings();

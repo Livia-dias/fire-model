@@ -8,6 +8,7 @@ import com.testcsv.testcsv.utils.AllMapper;
 import com.testcsv.testcsv.utils.Utils;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -47,6 +48,16 @@ public class NdviFixer {
             for (Path arquivo : arquivos) {
                 rows.addAll(fillNdvi(arquivo.toFile()));
             }
+
+            System.out.println(caminho.getDataFidPath());
+            System.out.printf("Total: %d%n", rows.size());
+            Set<InputRow> diff = new HashSet<>(rows);
+            System.out.printf("Entradas únicas: %d%n", diff.size());
+
+            Collection<InputRow> result = CollectionUtils.subtract(rows, diff);
+            System.out.printf("Duplicatas: %s%n",result.size());
+
+
             Comparator<InputRow> comparator = Comparator.comparing(i -> i.getDatahora().getYear());
             comparator.thenComparing(InputRow::getFid);
             rows.sort(comparator);
@@ -66,7 +77,7 @@ public class NdviFixer {
                     "lulc",
                     "year",
                     "data");
-            Utils.write(caminho, output, OutputWithDataRow.class, headers);
+            //Utils.write(caminho, output, OutputWithDataRow.class, headers);
         }
     }
 

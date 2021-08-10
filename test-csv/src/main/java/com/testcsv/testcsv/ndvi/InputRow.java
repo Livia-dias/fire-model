@@ -15,34 +15,54 @@ import java.util.List;
 @Builder
 @EqualsAndHashCode
 public class InputRow {
+    @EqualsAndHashCode.Exclude
     @Parsed(field = "FID")
     private Integer fid;
+    @EqualsAndHashCode.Include
     @Parsed(field="datahora")
     private String datahora;
+    @EqualsAndHashCode.Exclude
     @Parsed(field="JAN_NDVI_2")
     private Double janNdvi;
+    @EqualsAndHashCode.Exclude
     @Parsed(field="FEV_NDVI_2")
     private Double fevNdvi;
+    @EqualsAndHashCode.Exclude
     @Parsed(field="MAR_NDVI_2")
     private Double marNdvi;
+    @EqualsAndHashCode.Exclude
     @Parsed(field="ABR_NDVI_2")
     private Double abrNdvi;
+    @EqualsAndHashCode.Exclude
     @Parsed(field="MAI_NDVI_2")
     private Double maiNdvi;
+    @EqualsAndHashCode.Exclude
     @Parsed(field="JUN_NDVI_2")
     private Double junNdvi;
+    @EqualsAndHashCode.Exclude
     @Parsed(field="JUL_NDVI_2")
     private Double julNdvi;
+    @EqualsAndHashCode.Exclude
     @Parsed(field="AGO_NDVI_2")
     private Double agoNdvi;
+    @EqualsAndHashCode.Exclude
     @Parsed(field="SET_NDVI_2")
     private Double setNdvi;
+    @EqualsAndHashCode.Exclude
     @Parsed(field="OUT_NDVI_2")
     private Double outNdvi;
+    @EqualsAndHashCode.Exclude
     @Parsed(field="NOV_NDVI_2")
     private Double novNdvi;
+    @EqualsAndHashCode.Exclude
     @Parsed(field="DEZ_NDVI_2")
     private Double dezNdvi;
+    @EqualsAndHashCode.Include
+    @Parsed(field = "latitude")
+    private Double latitude;
+    @EqualsAndHashCode.Include
+    @Parsed(field = "longitude")
+    private Double longitude;
 
     @EqualsAndHashCode.Exclude
     private Double ndvi;
