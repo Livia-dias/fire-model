@@ -31,4 +31,10 @@ public class DadosGerados {
     private Double mediaPrecComFogo;
     @Parsed(index = 9)
     private Double mediaUmidadeComFogo;
+    @Parsed(index = 10)
+    private Double umidadeMinima;
+    @Parsed(index = 11)
+    private Double precipitacaoMedia;
+    @Parsed(index = 12)
+    private Integer quantidadeDeFocos;
 }

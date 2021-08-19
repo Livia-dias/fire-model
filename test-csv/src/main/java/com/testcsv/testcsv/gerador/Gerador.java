@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 public class Gerador {
 
 
-
     @SneakyThrows
     @EventListener(ApplicationReadyEvent.class)
     public void readAll() {
@@ -32,7 +31,7 @@ public class Gerador {
             Map<MesAno, List<ClimaRowWithDay>> mapaMes = new HashMap<>();
             for (ClimaRowWithDay foco : focos) {
                 MesAno mesAno = MesAno.builder().ano(foco.getYear()).mes(foco.getMonth()).build();
-                if(!mapaMes.containsKey(mesAno)){
+                if (!mapaMes.containsKey(mesAno)) {
                     mapaMes.put(mesAno, new ArrayList<>());
                 }
                 mapaMes.get(mesAno).add(foco);
@@ -43,25 +42,31 @@ public class Gerador {
                 Integer dias = (int) entry.getValue().stream().filter(i -> i.getPrecipitation() == 0).count();
                 Double tempMedia = entry.getValue().stream().mapToDouble(ClimaRowWithDay::getTemperature).average().orElse(0);
                 Double tempMaxima = entry.getValue().stream().max(Comparator.comparingDouble(ClimaRowWithDay::getTemperature)).get().getTemperature();
-                int pegouFogo = (int) entry.getValue().stream().filter(ClimaRowWithDay::isHasFire).count();
-                Double umidade = entry.getValue().stream().mapToDouble(ClimaRowWithDay::getRh).average().orElse(0);
+                List<ClimaRowWithDay> focosComFogo = entry.getValue().stream().filter(ClimaRowWithDay::isHasFire).collect(Collectors.toList());
+                int pegouFogo = focosComFogo.stream().mapToInt(ClimaRowWithDay::getFocusesQnt).sum();
+                Double umidadeMedia = entry.getValue().stream().mapToDouble(ClimaRowWithDay::getRh).average().orElse(0);
+                Double umidadeMinima = entry.getValue().stream().mapToDouble(ClimaRowWithDay::getRh).min().orElse(0);
+                int quantidadeDeFocos = (int) entry.getValue().stream().filter(ClimaRowWithDay::isHasFire).count();
 
                 Double mediaTempFogos = entry.getValue().stream().filter(ClimaRowWithDay::isHasFire).mapToDouble(ClimaRowWithDay::getTemperature).average().orElse(0);
                 Double mediaPrecFogos = entry.getValue().stream().filter(ClimaRowWithDay::isHasFire).mapToDouble(ClimaRowWithDay::getPrecipitation).average().orElse(0);
                 Double mediaRhFogos = entry.getValue().stream().filter(ClimaRowWithDay::isHasFire).mapToDouble(ClimaRowWithDay::getRh).average().orElse(0);
+                Double precipitacaoMedia = entry.getValue().stream().mapToDouble(ClimaRowWithDay::getPrecipitation).average().orElse(0);
 
                 mapazao.add(DadosGerados.builder()
                         .mes(entry.getKey().getMes()).ano(entry.getKey().getAno())
                         .diasSemChuva(dias).temperaturaMedia(tempMedia).temperaturaMaxima(tempMaxima)
-                        .focos(pegouFogo).umidadeMedia(umidade).mediaTempComFogo(mediaTempFogos)
-                        .mediaPrecComFogo(mediaPrecFogos).mediaUmidadeComFogo(mediaRhFogos)
+                        .focos(pegouFogo).umidadeMedia(umidadeMedia).mediaTempComFogo(mediaTempFogos)
+                        .mediaPrecComFogo(mediaPrecFogos).mediaUmidadeComFogo(mediaRhFogos).umidadeMinima(umidadeMinima)
+                        .precipitacaoMedia(precipitacaoMedia).quantidadeDeFocos(quantidadeDeFocos)
                         .build());
             }
             mapazao.sort(Comparator.comparing(DadosGerados::getAno).thenComparing(DadosGerados::getMes));
 
             Utils.write(arquivo.getMesOutput(), mapazao, DadosGerados.class,
-                    Arrays.asList("mes","ano","diasSemChuva","quantidadeFocos","umidadeMedia",
-                            "tempMedia", "tempMax", "mediaTempComFocos", "mediaPrecComFocos", "mediaUmidadeComFocos"));
+                    Arrays.asList("mes", "ano", "diasSemChuva", "quantidadeFocos", "umidadeMedia",
+                            "tempMedia", "tempMax", "mediaTempComFocos", "mediaPrecComFocos", "mediaUmidadeComFocos", "umidadeMinima",
+                            "precipitacaoMedia", "diasComFogo"));
 
             Map<Integer, List<ClimaRowWithDay>> ano = focos.stream().collect(Collectors.groupingBy(ClimaRowWithDay::getYear));
             List<DadosGerados> mapaAno = new ArrayList<>();
@@ -69,25 +74,31 @@ public class Gerador {
                 Integer dias = (int) entry.getValue().stream().filter(i -> i.getPrecipitation() == 0).count();
                 Double tempMedia = entry.getValue().stream().mapToDouble(ClimaRowWithDay::getTemperature).average().orElse(0);
                 Double tempMaxima = entry.getValue().stream().max(Comparator.comparingDouble(ClimaRowWithDay::getTemperature)).get().getTemperature();
-                int pegouFogo = (int) entry.getValue().stream().filter(ClimaRowWithDay::isHasFire).count();
-                Double umidade = entry.getValue().stream().mapToDouble(ClimaRowWithDay::getRh).average().orElse(0);
+                List<ClimaRowWithDay> focosComFogo = entry.getValue().stream().filter(ClimaRowWithDay::isHasFire).collect(Collectors.toList());
+                int pegouFogo = focosComFogo.stream().mapToInt(ClimaRowWithDay::getFocusesQnt).sum();
+                Double umidadeMedia = entry.getValue().stream().mapToDouble(ClimaRowWithDay::getRh).average().orElse(0);
+                Double umidadeMinima = entry.getValue().stream().mapToDouble(ClimaRowWithDay::getRh).min().orElse(0);
+                int quantidadeDeFocos = (int) entry.getValue().stream().filter(ClimaRowWithDay::isHasFire).count();
 
                 Double mediaTempFogos = entry.getValue().stream().filter(ClimaRowWithDay::isHasFire).mapToDouble(ClimaRowWithDay::getTemperature).average().orElse(0);
                 Double mediaPrecFogos = entry.getValue().stream().filter(ClimaRowWithDay::isHasFire).mapToDouble(ClimaRowWithDay::getPrecipitation).average().orElse(0);
                 Double mediaRhFogos = entry.getValue().stream().filter(ClimaRowWithDay::isHasFire).mapToDouble(ClimaRowWithDay::getRh).average().orElse(0);
+                Double precipitacaoMedia = entry.getValue().stream().mapToDouble(ClimaRowWithDay::getPrecipitation).average().orElse(0);
 
                 mapaAno.add(DadosGerados.builder().ano(entry.getKey())
                         .diasSemChuva(dias).temperaturaMedia(tempMedia).temperaturaMaxima(tempMaxima)
-                        .focos(pegouFogo).umidadeMedia(umidade).mediaTempComFogo(mediaTempFogos)
-                        .mediaPrecComFogo(mediaPrecFogos).mediaUmidadeComFogo(mediaRhFogos)
+                        .focos(pegouFogo).umidadeMedia(umidadeMedia).mediaTempComFogo(mediaTempFogos)
+                        .mediaPrecComFogo(mediaPrecFogos).mediaUmidadeComFogo(mediaRhFogos).umidadeMinima(umidadeMinima)
+                        .precipitacaoMedia(precipitacaoMedia).quantidadeDeFocos(quantidadeDeFocos)
                         .build());
 
             }
             mapaAno.sort(Comparator.comparing(DadosGerados::getAno));
 
             Utils.write(arquivo.getAnoOutput(), mapaAno, DadosGerados.class,
-                    Arrays.asList("mes","ano","diasSemChuva","quantidadeFocos","umidadeMedia",
-                            "tempMedia", "tempMax", "mediaTempComFocos", "mediaPrecComFocos", "mediaUmidadeComFocos"));
+                    Arrays.asList("mes", "ano", "diasSemChuva", "quantidadeFocos", "umidadeMedia",
+                            "tempMedia", "tempMax", "mediaTempComFocos", "mediaPrecComFocos", "mediaUmidadeComFocos",
+                            "umidadeMinima", "precipitacaoMedia", "diasComFogo"));
 
         }
     }
