@@ -12,10 +12,23 @@ library(pROC)
 library(graphics)
 library(caret)
 library(rlist)
+APA = "pandeiros"
+currentTest = "Topografico"
 
-
-APA = "cocha"
-currentTest = "FWI"
+if(currentTest == "Topografico"){
+  nomes_colunas=c("HAS_FIRE","Elevation","Slope","NDVI","Road","Hydrography","Pop_dens","Ocupations", "LULC")
+  range_colunas = c()
+}
+if(currentTest == "FWI"){
+  nomes_colunas=c("HAS_FIRE","Elevation","Slope","NDVI","Road","Hydrography","Pop_dens","Ocupations", "LULC", "Temperature", 
+                  "RH", "Precipitation", "Wind Speed", "FMC", "DMC", "DC")
+  range_colunas = c(10:16)
+}
+if(currentTest == "Clima"){
+  nomes_colunas=c("HAS_FIRE","Elevation","Slope","NDVI","Road","Hydrography","Pop_dens","Ocupations", "LULC", "Temperature", 
+                  "RH", "Precipitation", "Wind Speed")
+  range_colunas = c(10:13)
+}
 
 if(APA == "cocha") {
  
@@ -26,12 +39,17 @@ if(APA == "cocha") {
   titulo_grafico_pred = "APA Cocha e Gibão"
   titulo_grafico_auc = " Curva ROC - APA Cocha e Gibão"
   
-  if(currentTest=="FWI")
+  if(currentTest=="FWI"){
     arquivo_apa_leitura = "MODELO_TODOS_SATÉLITES\\APA Cocha\\modelo_TODOS_com_FWI_cocha.csv"
-  if(currentTest=="Clima")
+  }
+    
+  if(currentTest=="Clima"){
     arquivo_apa_leitura = "MODELO_TODOS_SATÉLITES\\APA Cocha\\modelo_TODOS_com_clima_cocha.csv"
-  if(currentTest=="Topografico")
+  }
+    
+  if(currentTest=="Topografico"){
     arquivo_apa_leitura = "MODELO_TODOS_SATÉLITES\\APA Cocha\\modelo_TODOS_cocha.csv"
+  }
   
   arquivo_saida_predicoes=sprintf("MODELO_TODOS_SATÉLITES\\APA Cocha\\resultados\\%s\\predicoes_cocha.csv", currentTest)
   arquivo_coef_saida = sprintf("MODELO_TODOS_SATÉLITES\\APA Cocha\\resultados\\%s\\coeficientes_log_reg_cocha.csv", currentTest)
@@ -51,12 +69,16 @@ if(APA == "cavernas") {
   titulo_grafico_auc = "Curva ROC - APA Cavernas"
   
 
-  if(currentTest=="FWI")
-    arquivo_apa_leitura = "MODELO_TODOS_SATÉLITES\\APA Cocha\\modelo_TODOS_com_FWI_cavernas.csv"
-  if(currentTest=="Clima")
-    arquivo_apa_leitura = "MODELO_TODOS_SATÉLITES\\APA Cocha\\modelo_TODOS_com_clima_cavernas.csv"
-  if(currentTest=="Topografico")
-    arquivo_apa_leitura = "MODELO_TODOS_SATÉLITES\\APA Cocha\\modelo_TODOS_cavernas.csv"
+  if(currentTest=="FWI"){
+    arquivo_apa_leitura = "MODELO_TODOS_SATÉLITES\\APA Cavernas\\modelo_TODOS_com_FWI_cavernas.csv"
+  }
+    
+  if(currentTest=="Clima"){
+    arquivo_apa_leitura = "MODELO_TODOS_SATÉLITES\\APA Cavernas\\modelo_TODOS_com_clima_cavernas.csv"
+  }
+  if(currentTest=="Topografico"){
+    arquivo_apa_leitura = "MODELO_TODOS_SATÉLITES\\APA Cavernas\\modelo_TODOS_cavernas.csv"
+  }
   
   arquivo_saida_predicoes=sprintf("MODELO_TODOS_SATÉLITES\\APA Cavernas\\resultados\\%s\\predicoes_cavernas.csv", currentTest)
   arquivo_coef_saida = sprintf("MODELO_TODOS_SATÉLITES\\APA Cavernas\\resultados\\%s\\coeficientes_log_reg_cave.csv", currentTest)
@@ -76,12 +98,16 @@ if(APA == "pandeiros") {
   titulo_grafico_auc = "Curva ROC - APA Rio Pandeiros"
   
  
-  if(currentTest=="FWI")
-    arquivo_apa_leitura = "MODELO_TODOS_SATÉLITES\\APA Cocha\\modelo_TODOS_com_FWI_pand.csv"
-  if(currentTest=="Clima")
-    arquivo_apa_leitura = "MODELO_TODOS_SATÉLITES\\APA Cocha\\modelo_TODOS_com_clima_pand.csv"
-  if(currentTest=="Topografico")
-    arquivo_apa_leitura = "MODELO_TODOS_SATÉLITES\\APA Cocha\\modelo_TODOS_pand.csv"
+  if(currentTest=="FWI"){
+    arquivo_apa_leitura = "MODELO_TODOS_SATÉLITES\\APA Pandeiros\\modelo_TODOS_com_FWI_pand.csv"
+  }
+  if(currentTest=="Clima"){
+    arquivo_apa_leitura = "MODELO_TODOS_SATÉLITES\\APA Pandeiros\\modelo_TODOS_com_clima_pand.csv"
+    }
+  if(currentTest=="Topografico"){
+    arquivo_apa_leitura = "MODELO_TODOS_SATÉLITES\\APA Pandeiros\\modelo_TODOS_pand.csv"
+  
+  }
   
   arquivo_saida_predicoes=sprintf("MODELO_TODOS_SATÉLITES\\APA Pandeiros\\resultados\\%s\\predicoes_pandeiros.csv", currentTest)
   arquivo_coef_saida = sprintf("MODELO_TODOS_SATÉLITES\\APA Pandeiros\\resultados\\%s\\coeficientes_log_reg_pand.csv", currentTest)
@@ -113,20 +139,20 @@ dados_teste_cave_map=cavernas_topografic[cavernas_topografic$year>=2016,]
 dados_teste_cave_map=dados_teste_cave_map[1:(length(dados_teste_cave_map)-1)]
 dados_treino_cave_map=dados_treino_cave_map[1:(length(dados_treino_cave_map)-1)]
 
-colnames(dados_teste_cave_map)=c("HAS_FIRE","Elevation","Slope","NDVI","Road","Hydrography","Pop_dens","Ocupations", "LULC", "Temperature", 
-                                 "RH", "Precipitation", "Wind Speed", "FMC", "DMC", "DC")
-colnames(dados_treino_cave_map)=c("HAS_FIRE","Elevation","Slope","NDVI","Road","Hydrography","Pop_dens","Ocupations","LULC", "Temperature", 
-                                  "RH", "Precipitation", "Wind Speed", "FMC", "DMC", "DC")
+colnames(dados_teste_cave_map)=nomes_colunas
+colnames(dados_treino_cave_map)=nomes_colunas
 
 options(na.action = "na.fail") 
 
 ###STD
 dados_treino_cave_map_std= dados_treino_cave_map
 dados_treino_cave_map_std[2:8]=scale(dados_treino_cave_map_std[2:8])
-dados_treino_cave_map_std[10:16]=scale(dados_treino_cave_map_std[10:16])
+dados_treino_cave_map_std[range_colunas]=scale(dados_treino_cave_map_std[range_colunas])
 
-dados_teste_cave_map$Precipitation=NULL
-dados_treino_cave_map$Precipitation=NULL
+#dados_teste_cave_map$Elevation=NULL
+#dados_treino_cave_map$Elevation=NULL
+#dados_teste_cave_map$Pop_dens=NULL
+#dados_treino_cave_map$Pop_dens=NULL
 
 train.control <- glm.control(epsilon = 1e-8, maxit =25 , trace = FALSE)
 
@@ -144,7 +170,6 @@ write.csv(sumario_model_std, sumario_apa_std)
 model_map=glm(HAS_FIRE ~ .,data = dados_treino_cave_map,family = binomial(link = "logit"))
 dd <- dredge(model_map)
 model_AIC=get.models(dd,TRUE, subset = delta < 4)[[1]]
-
 
 sumario_model=summary(model_AIC)$coefficients
 write.csv(sumario_model, sumario_apa)
@@ -198,17 +223,20 @@ dados_teste_cave_map["HasFire_Predict"]=pred_roc_cave["HAS_FIRE"]
 write.csv(dados_teste_cave_map, arquivo_saida_predicoes)
 plot(fitted.values(model_AIC), residuals.glm(model_AIC),
      main = titulo_residuo_vs_fitted,
-     xlab = "Valores Observados Ajustados", ylab = "Resíduos")
+     xlab = "Valores Observados Ajustados", ylab = "Resíduais")
 abline(0,0)
 
 
 residuos_prob=(as.numeric(dados_teste_cave_map$HAS_FIRE)-1)-prob_map
 plot(dados_teste_cave_map$HasFire_Predict, residuos_prob,
      main = titulo_predito_vs_residuo,
-     xlab = "Previstos", ylab = "Resíduos")
+     xlab = "Previstos", ylab = "Resíduais")
 
 set.seed(123)
-kfold = cv.glm(dados_teste_cave_map, model_map, K=10) #Kfold=10
-kfold_loocv = cv.glm(dados_teste_cave_map, model_map, K=nrow(dados_teste_cave_map)) #KFold LOOCV
+kfold = cv.glm(dados_teste_cave_map, model_AIC, K=10) #Kfold=10
+kfold_loocv = cv.glm(dados_teste_cave_map, model_AIC, K=nrow(dados_teste_cave_map)) #KFold LOOCV
 kfold
 kfold_loocv
+
+fileName = sprintf("%s-%s.RData", APA, currentTest)
+save.image(sprintf("C:\\R\\fire-model\\workspaces\\%s",fileName))

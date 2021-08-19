@@ -142,6 +142,7 @@ grafico_predicao
 dados_teste_cave_map$Prob_fogo=prob_map
 
 
+
 tabelinha = table(dados_teste_cave_map$HAS_FIRE,dados_teste_cave_map$Prob_fogo>0.5)
 write.csv(tabelinha, acuracia_apa)
 tabelinha[1]/(tabelinha[1]+tabelinha[2])
@@ -180,3 +181,5 @@ plot(roc_model,print.auc = TRUE, legacy.axes = TRUE, grid=TRUE,
          xlab = "Taxa de Falso Positivo (Especificidade %)", ylab = "Taxa de Verdadeiro Positivo (Sensibilidade %)")
 
 #dev.off()
+
+
