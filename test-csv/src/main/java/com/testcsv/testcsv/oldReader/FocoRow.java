@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -43,6 +44,8 @@ public class FocoRow {
     private String frp;
     @Parsed(index = 12)
     private String areaprotegida;
+
+    private LocalDate soData;
 
     @Override
     public boolean equals(Object o){

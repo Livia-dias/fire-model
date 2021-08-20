@@ -25,10 +25,14 @@ public class ClimaRow {
     @Parsed(index = 5)
     private int year;
     @Parsed(index = 6)
-    private int focusesQnt;
+    private int focusesQnt = 0;
     @Parsed(index = 7)
-    private boolean hasFire;
+    private boolean hasFire = false;
 
     private int day;
+
+    public void incrementFocuses(int focusesQnt){
+        this.focusesQnt+=focusesQnt;
+    }
 
 }

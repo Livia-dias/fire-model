@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -39,16 +40,18 @@ public class ClimateCreator {
     }
 
     public void parseFoco(FileData fileData, List<FocoRow> focoRows){
-        Map<LocalDateTime, Long> unduplicated = focoRows.stream().collect(Collectors.groupingBy(FocoRow::getDatahora, Collectors.counting()));
+
+        focoRows.forEach(f -> f.setSoData(f.getDatahora().toLocalDate()));
+
+        Map<LocalDate, Long> unduplicated = focoRows.stream().collect(Collectors.groupingBy(FocoRow::getSoData, Collectors.counting()));
 
         File cavernas = new File(fileData.getClimaFile());
         List<ClimaRow> parsedRows = readClima(cavernas);
-        fixDays(parsedRows);
-
+        fixDays(parsedRows); //parsedRows = dados climáticos de TODOS os dias, uma row por dia
+        //unduplicated = data/hora do foco por quantos focos teve naquela data detectada
         parsedRows.forEach(e -> {
                     int amount = getAmount(unduplicated, e.getYear(), e.getMonth(), e.getDay());
-                    e.setFocusesQnt(amount);
-                    e.setHasFire(false);
+                    e.incrementFocuses(amount);
                     if (amount > 0)
                         e.setHasFire(true);
                 }
@@ -86,9 +89,9 @@ public class ClimateCreator {
         }
     }
 
-    public int getAmount(Map<LocalDateTime, Long> map, Integer year, Integer month, Integer day) {
-        for (Map.Entry<LocalDateTime, Long> localDateTimeLongEntry : map.entrySet()) {
-            LocalDateTime key = localDateTimeLongEntry.getKey();
+    public int getAmount(Map<LocalDate, Long> map, Integer year, Integer month, Integer day) {
+        for (Map.Entry<LocalDate, Long> localDateTimeLongEntry : map.entrySet()) {
+            LocalDate key = localDateTimeLongEntry.getKey();
             if(key.getYear() == year &&
             key.getMonthValue() == month &&
             key.getDayOfMonth() == day) {
