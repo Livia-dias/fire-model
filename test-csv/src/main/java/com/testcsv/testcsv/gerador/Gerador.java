@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.util.*;
+import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 
 @Component
@@ -21,9 +22,9 @@ public class Gerador {
     @EventListener(ApplicationReadyEvent.class)
     public void readAll() {
         List<FileData> arquivos = Arrays.asList(
-                FileData.builder().input("src/main/resources/cavernas.csv").mesOutput("src/main/resources/cavernas_gerado_por_mes.csv").anoOutput("src/main/resources/cavernas_gerado_por_ano.csv").build(),
-                FileData.builder().input("src/main/resources/cocha.csv").mesOutput("src/main/resources/cocha_gerado_por_mes.csv").anoOutput("src/main/resources/cocha_gerado_por_ano.csv").build(),
-                FileData.builder().input("src/main/resources/pandeiros.csv").mesOutput("src/main/resources/pandeiros_gerado_por_mes.csv").anoOutput("src/main/resources/pandeiros_gerado_por_ano.csv").build());
+                FileData.builder().input("src/main/resources/cavernas2.csv").mesOutput("src/main/resources/cavernas_gerado_por_mes2.csv").anoOutput("src/main/resources/cavernas_gerado_por_ano2.csv").build(),
+                FileData.builder().input("src/main/resources/cocha2.csv").mesOutput("src/main/resources/cocha_gerado_por_mes2.csv").anoOutput("src/main/resources/cocha_gerado_por_ano2.csv").build(),
+                FileData.builder().input("src/main/resources/pandeiros2.csv").mesOutput("src/main/resources/pandeiros_gerado_por_mes2.csv").anoOutput("src/main/resources/pandeiros_gerado_por_ano2.csv").build());
 
         for (FileData arquivo : arquivos) {
             List<ClimaRowWithDay> focos = Utils.readFoco(new File(arquivo.getInput()), ClimaRowWithDay.class);
@@ -44,6 +45,7 @@ public class Gerador {
                 Double tempMaxima = entry.getValue().stream().max(Comparator.comparingDouble(ClimaRowWithDay::getTemperature)).get().getTemperature();
                 List<ClimaRowWithDay> focosComFogo = entry.getValue().stream().filter(ClimaRowWithDay::isHasFire).collect(Collectors.toList());
                 int pegouFogo = focosComFogo.stream().mapToInt(ClimaRowWithDay::getFocusesQnt).sum();
+                Double totalPluviosidade = entry.getValue().stream().mapToDouble(ClimaRowWithDay::getPrecipitation).sum();
                 Double umidadeMedia = entry.getValue().stream().mapToDouble(ClimaRowWithDay::getRh).average().orElse(0);
                 Double umidadeMinima = entry.getValue().stream().mapToDouble(ClimaRowWithDay::getRh).min().orElse(0);
                 int quantidadeDeFocos = (int) entry.getValue().stream().filter(ClimaRowWithDay::isHasFire).count();
@@ -59,6 +61,7 @@ public class Gerador {
                         .focos(pegouFogo).umidadeMedia(umidadeMedia).mediaTempComFogo(mediaTempFogos)
                         .mediaPrecComFogo(mediaPrecFogos).mediaUmidadeComFogo(mediaRhFogos).umidadeMinima(umidadeMinima)
                         .precipitacaoMedia(precipitacaoMedia).quantidadeDeFocos(quantidadeDeFocos)
+                                .totalPluviosidade(totalPluviosidade)
                         .build());
             }
             mapazao.sort(Comparator.comparing(DadosGerados::getAno).thenComparing(DadosGerados::getMes));
@@ -66,7 +69,7 @@ public class Gerador {
             Utils.write(arquivo.getMesOutput(), mapazao, DadosGerados.class,
                     Arrays.asList("mes", "ano", "diasSemChuva", "quantidadeFocos", "umidadeMedia",
                             "tempMedia", "tempMax", "mediaTempComFocos", "mediaPrecComFocos", "mediaUmidadeComFocos", "umidadeMinima",
-                            "precipitacaoMedia", "diasComFogo"));
+                            "precipitacaoMedia", "diasComFogo", "totalPluviosidade"));
 
             Map<Integer, List<ClimaRowWithDay>> ano = focos.stream().collect(Collectors.groupingBy(ClimaRowWithDay::getYear));
             List<DadosGerados> mapaAno = new ArrayList<>();
@@ -84,12 +87,14 @@ public class Gerador {
                 Double mediaPrecFogos = entry.getValue().stream().filter(ClimaRowWithDay::isHasFire).mapToDouble(ClimaRowWithDay::getPrecipitation).average().orElse(0);
                 Double mediaRhFogos = entry.getValue().stream().filter(ClimaRowWithDay::isHasFire).mapToDouble(ClimaRowWithDay::getRh).average().orElse(0);
                 Double precipitacaoMedia = entry.getValue().stream().mapToDouble(ClimaRowWithDay::getPrecipitation).average().orElse(0);
+                Double totalPluviosidade = entry.getValue().stream().mapToDouble(ClimaRowWithDay::getPrecipitation).sum();
 
                 mapaAno.add(DadosGerados.builder().ano(entry.getKey())
                         .diasSemChuva(dias).temperaturaMedia(tempMedia).temperaturaMaxima(tempMaxima)
                         .focos(pegouFogo).umidadeMedia(umidadeMedia).mediaTempComFogo(mediaTempFogos)
                         .mediaPrecComFogo(mediaPrecFogos).mediaUmidadeComFogo(mediaRhFogos).umidadeMinima(umidadeMinima)
                         .precipitacaoMedia(precipitacaoMedia).quantidadeDeFocos(quantidadeDeFocos)
+                                .totalPluviosidade(totalPluviosidade)
                         .build());
 
             }
@@ -98,8 +103,22 @@ public class Gerador {
             Utils.write(arquivo.getAnoOutput(), mapaAno, DadosGerados.class,
                     Arrays.asList("mes", "ano", "diasSemChuva", "quantidadeFocos", "umidadeMedia",
                             "tempMedia", "tempMax", "mediaTempComFocos", "mediaPrecComFocos", "mediaUmidadeComFocos",
-                            "umidadeMinima", "precipitacaoMedia", "diasComFogo"));
+                            "umidadeMinima", "precipitacaoMedia", "diasComFogo", "totalPluviosidade"));
 
         }
+    }
+
+    private double calculate(ToDoubleFunction<ClimaRowWithDay> getter, Map.Entry<Integer, List<ClimaRowWithDay>> entry) {
+        double sum = entry.getValue().stream().mapToDouble(getter).sum();
+        double resultado = sum / entry.getValue().size();
+
+        return resultado;
+    }
+
+    private double calculateMes(ToDoubleFunction<ClimaRowWithDay> getter, Map.Entry<MesAno, List<ClimaRowWithDay>> entry) {
+        double sum = entry.getValue().stream().mapToDouble(getter).sum();
+        double resultado = sum / entry.getValue().size();
+
+        return resultado;
     }
 }

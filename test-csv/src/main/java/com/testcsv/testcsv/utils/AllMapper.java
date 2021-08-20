@@ -5,6 +5,8 @@ import com.testcsv.testcsv.ndvi.OutputWithDataRow;
 import com.testcsv.testcsv.newOne.FidWithDateTime;
 import com.testcsv.testcsv.newOne.FocosWithDayAndFidRow;
 import com.testcsv.testcsv.newreader.*;
+import com.testcsv.testcsv.oldReader.FocoRow;
+import com.testcsv.testcsv.oldReader.NewFocoRow;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -34,4 +36,8 @@ public interface AllMapper {
     @Mapping(target = "hasFire", source = "foco.hasFire")
     @Mapping(source = "foco.ocupations", target = "occupations")
     FocosWithDayRow toFocoWithDay(RandomClima clima, OutputRow foco);
+
+
+    FocoRow toFocoRow(NewFocoRow row);
+    List<FocoRow> toFocoRow(List<NewFocoRow> row);
 }

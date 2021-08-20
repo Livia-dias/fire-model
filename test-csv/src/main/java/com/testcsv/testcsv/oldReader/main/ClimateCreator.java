@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ClimateCreator {
 
+    //@EventListener(ApplicationReadyEvent.class)
     public void readFile() {
         FileData cavernasData = new FileData("clima_cavernas.csv","Focos-cavernas_1999-2019_TODOS_sat.csv","cavernas.csv");
         FileData cochaData = new FileData("clima_cochagibao.csv","Focos-cocha_1999-2019_TODOS_sat.csv","cocha.csv");
@@ -34,7 +35,11 @@ public class ClimateCreator {
 
         File focos = new File(fileData.getFocoFile());
         List<FocoRow> focoRows = readFoco(focos);
-        Map<LocalDateTime, Long> unduplicated = removeDuplicates(focoRows);
+        parseFoco(fileData, focoRows);
+    }
+
+    public void parseFoco(FileData fileData, List<FocoRow> focoRows){
+        Map<LocalDateTime, Long> unduplicated = focoRows.stream().collect(Collectors.groupingBy(FocoRow::getDatahora, Collectors.counting()));
 
         File cavernas = new File(fileData.getClimaFile());
         List<ClimaRow> parsedRows = readClima(cavernas);

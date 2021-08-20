@@ -37,4 +37,6 @@ public class DadosGerados {
     private Double precipitacaoMedia;
     @Parsed(index = 12)
     private Integer quantidadeDeFocos;
+    @Parsed(index = 13)
+    private Double totalPluviosidade;
 }
