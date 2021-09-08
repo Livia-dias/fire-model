@@ -14,6 +14,8 @@ import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.RandomUtils;
 
 import java.io.File;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -126,5 +128,10 @@ public class Utils {
                 .buildUpIndex(RandomUtils.nextDouble(minBuildUp, maxBuildUp))
                 .dailySeverityRating(RandomUtils.nextDouble(minDsr, maxDsr))
                 .build();
+    }
+
+    public static LocalDateTime convert(String dateTime){
+        String pattern = "yyyy/MM/dd HH:mm:ss";
+        return LocalDateTime.parse(dateTime, DateTimeFormatter.ofPattern(pattern));
     }
 }

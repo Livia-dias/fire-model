@@ -77,7 +77,7 @@ public class NdviFixer {
                     "lulc",
                     "year",
                     "data");
-            //Utils.write(caminho, output, OutputWithDataRow.class, headers);
+            Utils.write(caminho, output, OutputWithDataRow.class, headers);
         }
     }
 

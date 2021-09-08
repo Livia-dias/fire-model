@@ -4,8 +4,6 @@ import com.testcsv.testcsv.oldReader.ClimaRowWithDay;
 import com.testcsv.testcsv.utils.Utils;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -19,7 +17,7 @@ public class Gerador {
 
 
     @SneakyThrows
-    @EventListener(ApplicationReadyEvent.class)
+    //@EventListener(ApplicationReadyEvent.class)
     public void readAll() {
         List<FileData> arquivos = Arrays.asList(
                 FileData.builder().input("src/main/resources/cavernas2.csv").mesOutput("src/main/resources/cavernas_gerado_por_mes2.csv").anoOutput("src/main/resources/cavernas_gerado_por_ano2.csv").build(),
