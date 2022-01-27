@@ -216,7 +216,7 @@ auc_ratio_plot = plot(roc_model,print.auc = TRUE, legacy.axes = TRUE, grid=TRUE,
                       #print.thres.col=COLOR_AUC, print.thres.pattern=ifelse(roc_model$percent, "Limiar = %.2f", "%.3f"),
                       main= titulo_grafico_auc,
                       print.thres.adj=c(-3.25,26.5),
-                      xlab = "Taxa de Falso Positivo (Especificidade %)", ylab = "Taxa de Verdadeiro Positivo (Sensibilidade %)")
+                      xlab = "Especificidade (%)", ylab = "Sensibilidade (%)")
 auc_ratio_plot
 
 dados_teste_cave_map["HasFire_Predict"]=pred_roc_cave["HAS_FIRE"]
